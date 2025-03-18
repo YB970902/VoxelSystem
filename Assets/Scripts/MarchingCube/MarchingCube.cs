@@ -7,37 +7,57 @@ using UnityEngine;
 /// 마칭 큐브 구현을 위한 클래스
 /// 보여지는것을 구현해야 하기 때문에 구조보단 구현에 집중하자.
 /// </summary>
+[RequireComponent(typeof(MeshFilter))]
+[RequireComponent(typeof(MeshRenderer))]
 public class MarchingCube : MonoBehaviour
 {
-    /// <summary>
-    /// 한 변에 있는 큐브의 개수
-    /// </summary>
-    public const int CubeCount = 10;
-    /// <summary>
-    /// 꼭짓점마다 있는 스칼라 필드
-    /// 인덱스는 x, y, z로 구한다.
-    /// </summary>
-    private List<float> scalarField;
+    private Mesh mesh;
+
+    private MeshFilter meshFilter;
+    private MeshRenderer meshRenderer;
 
     private void Awake()
     {
-        int capacity = CubeCount * CubeCount * CubeCount;
-        scalarField = new List<float>(capacity);
-
-        for (int i = 0; i < capacity; ++i)
-        {
-            scalarField.Add(1f);
-        }
+        meshFilter = GetComponent<MeshFilter>();
+        meshRenderer = GetComponent<MeshRenderer>();
     }
     
-    /// <summary>
-    /// 스칼라 필드 값 반환
-    /// </summary>
-    private float GetScalarFieldValue(int x, int y, int z)
+    private void Start()
     {
-        const int YCoef = CubeCount;
-        const int ZCoef = CubeCount * CubeCount;
+        mesh = new Mesh();
+        meshFilter.mesh = mesh;
+
+        Vector3[] vertices = new Vector3[8]
+        {
+            new Vector3(0, 0, 0),
+            new Vector3(1, 0, 0),
+            new Vector3(1, 1, 0),
+            new Vector3(0, 1, 0),
+            new Vector3(0, 0, 1),
+            new Vector3(1, 0, 1),
+            new Vector3(1, 1, 1),
+            new Vector3(0, 1, 1)
+        };
+
+        int[] triangles = new int[]
+        {
+            0, 2, 1,
+            0, 3, 2,
+            3, 6, 2,
+            3, 7, 6,
+            7, 5, 6,
+            7, 4, 5,
+            4, 1, 5,
+            4, 0, 1,
+            4, 3, 0,
+            7, 3, 4,
+            1, 2, 5,
+            2, 6, 5
+        };
         
-        return scalarField[x + y * YCoef + z * ZCoef];
+        mesh.Clear();
+        mesh.vertices = vertices;
+        mesh.triangles = triangles;
+        mesh.RecalculateNormals();
     }
 }
