@@ -408,6 +408,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e94543668140478f932b0d7d46503d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gridVal:
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
 --- !u!23 &1126218163
 MeshRenderer:
   m_ObjectHideFlags: 0
