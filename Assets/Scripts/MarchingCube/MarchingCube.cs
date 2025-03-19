@@ -318,7 +318,7 @@ public class MarchingCube : MonoBehaviour
     private List<Vector3> vertices = new List<Vector3>(12);
     private List<int> edges = new List<int>();
 
-    [SerializeField] private List<float> gridVal = new List<float>(8);
+    public List<float> GridVal { get; set; } = new List<float>(8);
     private const float isoLevel = 0.5f;
     private List<Vector3> gridPos;
     
@@ -326,6 +326,11 @@ public class MarchingCube : MonoBehaviour
     {
         meshFilter = GetComponent<MeshFilter>();
         meshRenderer = GetComponent<MeshRenderer>();
+
+        for (int i = 0; i < 8; ++i)
+        {
+            GridVal.Add(1f);
+        }
 
         gridPos = new List<Vector3>(8);
         gridPos.Add(new Vector3(0, 0, 0));
@@ -356,21 +361,21 @@ public class MarchingCube : MonoBehaviour
     /// <summary>
     /// 등치면 계산
     /// </summary>
-    private void CalcIsoSurface()
+    public void CalcIsoSurface()
     {
         int cubeIndex = 0;
         
         edges.Clear();
         vertices.Clear();
 
-        if (gridVal[0] < isoLevel) cubeIndex |= 1;
-        if (gridVal[1] < isoLevel) cubeIndex |= 2;
-        if (gridVal[2] < isoLevel) cubeIndex |= 4;
-        if (gridVal[3] < isoLevel) cubeIndex |= 8;
-        if (gridVal[4] < isoLevel) cubeIndex |= 16;
-        if (gridVal[5] < isoLevel) cubeIndex |= 32;
-        if (gridVal[6] < isoLevel) cubeIndex |= 64;
-        if (gridVal[7] < isoLevel) cubeIndex |= 128;
+        if (GridVal[0] < isoLevel) cubeIndex |= 1;
+        if (GridVal[1] < isoLevel) cubeIndex |= 2;
+        if (GridVal[2] < isoLevel) cubeIndex |= 4;
+        if (GridVal[3] < isoLevel) cubeIndex |= 8;
+        if (GridVal[4] < isoLevel) cubeIndex |= 16;
+        if (GridVal[5] < isoLevel) cubeIndex |= 32;
+        if (GridVal[6] < isoLevel) cubeIndex |= 64;
+        if (GridVal[7] < isoLevel) cubeIndex |= 128;
 
         // 모두 꽉 차있으면 계산할 필요가 없다.
         if (edgeTable[cubeIndex] == 0) return;
@@ -382,29 +387,29 @@ public class MarchingCube : MonoBehaviour
         }
         
         if ((edgeTable[cubeIndex] & 1) != 0)
-            vertList[0] = VertexInterp(gridPos[0], gridPos[1], gridVal[0], gridVal[1]);
+            vertList[0] = VertexInterp(gridPos[0], gridPos[1], GridVal[0], GridVal[1]);
         if ((edgeTable[cubeIndex] & 2) != 0)
-            vertList[1] = VertexInterp(gridPos[1], gridPos[2], gridVal[1], gridVal[2]);
+            vertList[1] = VertexInterp(gridPos[1], gridPos[2], GridVal[1], GridVal[2]);
         if ((edgeTable[cubeIndex] & 4) != 0)
-            vertList[2] = VertexInterp(gridPos[2], gridPos[3], gridVal[2], gridVal[3]);
+            vertList[2] = VertexInterp(gridPos[2], gridPos[3], GridVal[2], GridVal[3]);
         if ((edgeTable[cubeIndex] & 8) != 0)
-            vertList[3] = VertexInterp(gridPos[3], gridPos[0], gridVal[3], gridVal[0]);
+            vertList[3] = VertexInterp(gridPos[3], gridPos[0], GridVal[3], GridVal[0]);
         if ((edgeTable[cubeIndex] & 16) != 0)
-            vertList[4] = VertexInterp(gridPos[4], gridPos[5], gridVal[4], gridVal[5]);
+            vertList[4] = VertexInterp(gridPos[4], gridPos[5], GridVal[4], GridVal[5]);
         if ((edgeTable[cubeIndex] & 32) != 0)
-            vertList[5] = VertexInterp(gridPos[5], gridPos[6], gridVal[5], gridVal[6]);
+            vertList[5] = VertexInterp(gridPos[5], gridPos[6], GridVal[5], GridVal[6]);
         if ((edgeTable[cubeIndex] & 64) != 0)
-            vertList[6] = VertexInterp(gridPos[6], gridPos[7], gridVal[6], gridVal[7]);
+            vertList[6] = VertexInterp(gridPos[6], gridPos[7], GridVal[6], GridVal[7]);
         if ((edgeTable[cubeIndex] & 128) != 0)
-            vertList[7] = VertexInterp(gridPos[7], gridPos[4], gridVal[7], gridVal[4]);
+            vertList[7] = VertexInterp(gridPos[7], gridPos[4], GridVal[7], GridVal[4]);
         if ((edgeTable[cubeIndex] & 256) != 0)
-            vertList[8] = VertexInterp(gridPos[0], gridPos[4], gridVal[0], gridVal[4]);
+            vertList[8] = VertexInterp(gridPos[0], gridPos[4], GridVal[0], GridVal[4]);
         if ((edgeTable[cubeIndex] & 512) != 0)
-            vertList[9] = VertexInterp(gridPos[1], gridPos[5], gridVal[1], gridVal[5]);
+            vertList[9] = VertexInterp(gridPos[1], gridPos[5], GridVal[1], GridVal[5]);
         if ((edgeTable[cubeIndex] & 1024) != 0)
-            vertList[10] = VertexInterp(gridPos[2], gridPos[6], gridVal[2], gridVal[6]);
+            vertList[10] = VertexInterp(gridPos[2], gridPos[6], GridVal[2], GridVal[6]);
         if ((edgeTable[cubeIndex] & 2048) != 0)
-            vertList[11] = VertexInterp(gridPos[3], gridPos[7], gridVal[3], gridVal[7]);
+            vertList[11] = VertexInterp(gridPos[3], gridPos[7], GridVal[3], GridVal[7]);
 
         for (int i = 0; triTable[cubeIndex, i] != -1; i += 3)
         {
@@ -416,13 +421,12 @@ public class MarchingCube : MonoBehaviour
             edges.Add(i + 2);
         }
 
-        mesh.vertices = vertices.ToArray();
-        mesh.triangles = edges.ToArray();
-        
         mesh.Clear();
+        
+        if (vertices.Count == 0) return;
+        
         mesh.vertices = vertices.ToArray();
         mesh.triangles = edges.ToArray();
-        mesh.RecalculateNormals();
     }
 
     private Vector3 VertexInterp(Vector3 pos1, Vector3 pos2, float p1, float p2)
