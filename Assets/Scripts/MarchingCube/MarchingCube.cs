@@ -337,6 +337,7 @@ public class MarchingCube : MonoBehaviour
         gridPos.Add(new Vector3(1, 0, 0));
         gridPos.Add(new Vector3(1, 0, -1));
         gridPos.Add(new Vector3(0, 0, -1));
+        
         gridPos.Add(new Vector3(0, 1, 0));
         gridPos.Add(new Vector3(1, 1, 0));
         gridPos.Add(new Vector3(1, 1, -1));
@@ -421,10 +422,11 @@ public class MarchingCube : MonoBehaviour
             edges.Add(i + 2);
         }
 
-        mesh.Clear();
-        
+
+        meshRenderer.enabled = vertices.Count > 0;
         if (vertices.Count == 0) return;
         
+        mesh.Clear();
         mesh.vertices = vertices.ToArray();
         mesh.triangles = edges.ToArray();
     }

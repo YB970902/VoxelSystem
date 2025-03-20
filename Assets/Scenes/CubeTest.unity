@@ -155,7 +155,7 @@ MonoBehaviour:
   cubeHeightCount: 2
   prefab: {fileID: 620129781690430014, guid: 93b4c3bd0ab3342aba39fb79907ade08, type: 3}
   minWaveHeight: 0.2
-  maxWaveHeight: 1.8
+  maxWaveHeight: 0.8
   waveSpeed: 0.03
 --- !u!4 &845972455
 Transform:

@@ -97,15 +97,15 @@ public class CubeTest : MonoBehaviour
                 {
                     var cube = arrCube[x, z, y];
                     
-                    cube.GridVal[0] = GetLow(x, z, y);
-                    cube.GridVal[1] = GetLow(x + 1, z, y);
-                    cube.GridVal[2] = GetLow(x + 1, z + 1, y);
-                    cube.GridVal[3] = GetLow(x, z + 1, y);
+                    cube.GridVal[0] = GetLow(x, z + 1, y);
+                    cube.GridVal[1] = GetLow(x + 1, z + 1, y);
+                    cube.GridVal[2] = GetLow(x + 1, z, y);
+                    cube.GridVal[3] = GetLow(x, z , y);
                     
-                    cube.GridVal[4] = GetHigh(x, z, y + 1);
-                    cube.GridVal[5] = GetHigh(x + 1, z, y + 1);
-                    cube.GridVal[6] = GetHigh(x + 1, z + 1, y + 1);
-                    cube.GridVal[7] = GetHigh(x, z + 1, y + 1);
+                    cube.GridVal[4] = GetHigh(x, z + 1, y);
+                    cube.GridVal[5] = GetHigh(x + 1, z + 1, y);
+                    cube.GridVal[6] = GetHigh(x + 1, z, y);
+                    cube.GridVal[7] = GetHigh(x, z, y);
                     cube.CalcIsoSurface();
                 }
             }
@@ -114,13 +114,13 @@ public class CubeTest : MonoBehaviour
 
     private float GetLow(int x, int z, int y)
     {
-        float height = Mathf.Clamp(arrWaveVal[x, z], y, y + 1) - y;
+        float height = arrWaveVal[x, z] - y;
         return Mathf.Clamp(height, 0f, 0.5f) * 2f;
     }
     
     private float GetHigh(int x, int z, int y)
     {
-        float height = Mathf.Clamp(arrWaveVal[x, z], y, y + 1) - y;
+        float height = arrWaveVal[x, z] - y;
         return Mathf.Clamp(height - 0.5f, 0f, 0.5f) * 2f;
     }
 }
