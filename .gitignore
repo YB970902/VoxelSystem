@@ -29,6 +29,9 @@
 # Mac
 .DS_Store
 
+# Rider
+.idea/
+
 # Gradle cache directory
 .gradle/
 
