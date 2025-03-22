@@ -21,7 +21,7 @@ public class CubeTest : MonoBehaviour
     
     private void Awake()
     {
-        arrCube = new MarchingCube[cubeCount, cubeCount, cubeHeightCount];
+        arrCube = new MarchingCube[cubeCount, cubeCount, cubeHeightCount ];
         
         for (int x = 0; x < cubeCount; ++x)
         {
@@ -97,30 +97,24 @@ public class CubeTest : MonoBehaviour
                 {
                     var cube = arrCube[x, z, y];
                     
-                    cube.GridVal[0] = GetLow(x, z + 1, y);
-                    cube.GridVal[1] = GetLow(x + 1, z + 1, y);
-                    cube.GridVal[2] = GetLow(x + 1, z, y);
-                    cube.GridVal[3] = GetLow(x, z , y);
+                    cube.GridVal[0] = GetWaveHeight(x, z + 1, y);
+                    cube.GridVal[1] = GetWaveHeight(x + 1, z + 1, y);
+                    cube.GridVal[2] = GetWaveHeight(x + 1, z, y);
+                    cube.GridVal[3] = GetWaveHeight(x, z , y);
                     
-                    cube.GridVal[4] = GetHigh(x, z + 1, y);
-                    cube.GridVal[5] = GetHigh(x + 1, z + 1, y);
-                    cube.GridVal[6] = GetHigh(x + 1, z, y);
-                    cube.GridVal[7] = GetHigh(x, z, y);
+                    cube.GridVal[4] = GetWaveHeight(x, z + 1, y + 1);
+                    cube.GridVal[5] = GetWaveHeight(x + 1, z + 1, y + 1);
+                    cube.GridVal[6] = GetWaveHeight(x + 1, z, y + 1);
+                    cube.GridVal[7] = GetWaveHeight(x, z, y + 1);
                     cube.CalcIsoSurface();
                 }
             }
         }
     }
 
-    private float GetLow(int x, int z, int y)
+    private float GetWaveHeight(int x, int z, int y)
     {
         float height = arrWaveVal[x, z] - y;
-        return Mathf.Clamp(height, 0f, 0.5f) * 2f;
-    }
-    
-    private float GetHigh(int x, int z, int y)
-    {
-        float height = arrWaveVal[x, z] - y;
-        return Mathf.Clamp(height - 0.5f, 0f, 0.5f) * 2f;
+        return Mathf.Clamp01(height);
     }
 }
