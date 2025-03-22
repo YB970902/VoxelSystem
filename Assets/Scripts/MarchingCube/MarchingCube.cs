@@ -17,6 +17,8 @@ public class MarchingCube : MonoBehaviour
     private MeshFilter meshFilter;
     private MeshRenderer meshRenderer;
     
+    #region table
+    
     // Marching Cubes 표준 edgeTable (256 요소)
     private static readonly int[] edgeTable = new int[256]
     {
@@ -314,6 +316,8 @@ public class MarchingCube : MonoBehaviour
         { 0, 3, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
         { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 }
     };
+    
+    #endregion
 
     private List<Vector3> vertices = new List<Vector3>(12);
     private List<int> edges = new List<int>();
@@ -379,7 +383,10 @@ public class MarchingCube : MonoBehaviour
         if (GridVal[7] < isoLevel) cubeIndex |= 128;
 
         // 모두 꽉 차있으면 계산할 필요가 없다.
-        if (edgeTable[cubeIndex] == 0) return;
+        if (edgeTable[cubeIndex] == 0)
+        {
+            gameObject.SetActive(false);
+        }
 
         List<Vector3> vertList = new List<Vector3>(12);
         for (int i = 0; i < 12; ++i)
@@ -423,7 +430,7 @@ public class MarchingCube : MonoBehaviour
         }
 
 
-        meshRenderer.enabled = vertices.Count > 0;
+        gameObject.SetActive(vertices.Count > 0);
         if (vertices.Count == 0) return;
         
         mesh.Clear();
