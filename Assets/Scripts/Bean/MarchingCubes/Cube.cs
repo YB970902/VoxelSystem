@@ -17,6 +17,7 @@ namespace Bean.MC
         private Mesh mesh;
 
         private MeshFilter meshFilter;
+        private MeshRenderer meshRenderer;
 
         #region LookupTable
 
@@ -332,9 +333,13 @@ namespace Bean.MC
         /// <summary> 꼭짓점의 로컬좌표 </summary>
         private List<Vector3> gridPos;
 
+        /// <summary> 서브메시의 인덱스를 결정하는 함수 </summary>
+        private Func<Vector3, int> cbSubMeshIndex;
+
         private void Awake()
         {
             meshFilter = GetComponent<MeshFilter>();
+            meshRenderer = GetComponent<MeshRenderer>();
             mesh = new Mesh();
             meshFilter.mesh = mesh;
             
@@ -358,6 +363,14 @@ namespace Bean.MC
                 new Vector3(MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize),
                 new Vector3(-MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize)
             };
+        }
+
+        /// <summary>
+        /// 큐브를 사용할 수 있는 상태로 초기화한다.
+        /// </summary>
+        public void Init(Func<Vector3, int> cbSubMeshIndex)
+        {
+            this.cbSubMeshIndex = cbSubMeshIndex;
         }
 
         /// <summary>
@@ -432,8 +445,9 @@ namespace Bean.MC
             if (vertices.Count == 0) return;
 
             mesh.Clear();
+            mesh.subMeshCount = meshRenderer.materials.Length;
             mesh.SetVertices(vertices);
-            mesh.SetTriangles(triangles, 0);
+            mesh.SetTriangles(triangles, cbSubMeshIndex(transform.position));
         }
 
         private Vector3 VertexInterp(Vector3 vec1, Vector3 vec2, float scalar1, float scalar2)

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Define;
@@ -35,6 +36,8 @@ namespace Bean.MC
         /// </summary>
         private Cube prefab;
 
+        private Func<Vector3, int> cbSubMeshIndex;
+
         public CubeGenerator(int axisX, int axisZ, int axisY, Cube prefab)
         {
             this.prefab = prefab;
@@ -43,8 +46,9 @@ namespace Bean.MC
             AxisYCount = axisY;
         }
 
-        public void Init()
+        public void Init(Func<Vector3, int> cbSubMeshIndex = null)
         {
+            this.cbSubMeshIndex = cbSubMeshIndex;
             cubes = new Cube[AxisXCount, AxisZCount, AxisYCount];
             
             for (int x = 0; x < AxisXCount; ++x)
@@ -54,6 +58,7 @@ namespace Bean.MC
                     for (int y = 0; y < AxisYCount; ++y)
                     {
                         var cube = GameObject.Instantiate(prefab);
+                        cube.Init(CalcSubMeshIndex);
                         cube.transform.position = new Vector3(x * MarchingCubes.CubeSize, y * MarchingCubes.CubeSize, z * MarchingCubes.CubeSize);
                         cubes[x, z, y] = cube;
                     }
@@ -117,6 +122,17 @@ namespace Bean.MC
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// 서브메시를 계산하는 함수
+        /// 콜백함수가 있다면 그 함수를 호출하고, 없다면 0을 반환한다. 
+        /// </summary>
+        private int CalcSubMeshIndex(Vector3 position)
+        {
+            if (cbSubMeshIndex == null) return 0;
+            
+            return cbSubMeshIndex(position);
         }
     }
 }
