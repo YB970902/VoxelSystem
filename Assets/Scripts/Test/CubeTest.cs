@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Bean.MC;
 using UnityEngine;
 
 public class CubeTest : MonoBehaviour
@@ -8,10 +9,8 @@ public class CubeTest : MonoBehaviour
     [SerializeField] int cubeCount;
     [SerializeField] int cubeHeightCount;
     
-    [SerializeField] Bean.MC.Cube prefab;
+    [SerializeField] Cube prefab;
     
-    private Bean.MC.Cube[,,] arrCube;
-
     private float[,] arrWaveVal;
     private int[,] arrWaveDir;
 
@@ -19,23 +18,10 @@ public class CubeTest : MonoBehaviour
     [SerializeField] float maxWaveHeight;
     [SerializeField] float waveSpeed;
     
+    private CubeGenerator cubeGenerator;
+    
     private void Awake()
     {
-        arrCube = new Bean.MC.Cube[cubeCount, cubeCount, cubeHeightCount ];
-        
-        for (int x = 0; x < cubeCount; ++x)
-        {
-            for (int z = 0; z < cubeCount; ++z)
-            {
-                for (int y = 0; y < cubeHeightCount; ++y)
-                {
-                    var cube = Instantiate(prefab);
-                    cube.transform.position = new Vector3(x, y, z);
-                    arrCube[x,z,y] = cube;
-                }
-            }
-        }
-
         arrWaveVal = new float[cubeCount + 1, cubeCount + 1];
         arrWaveDir = new int[cubeCount + 1, cubeCount + 1];
 
@@ -62,6 +48,9 @@ public class CubeTest : MonoBehaviour
                 curDir = 1;
             }
         }
+        
+        cubeGenerator = new CubeGenerator(cubeCount, cubeCount, cubeHeightCount, prefab);
+        cubeGenerator.Init();
     }
 
     private void Update()
@@ -86,35 +75,19 @@ public class CubeTest : MonoBehaviour
             
                 arrWaveVal[x,z] = value;
                 arrWaveDir[x,z] = dir;
+
+                SetWaveHeight(x, z);
             }
         }
         
-        for (int x = 0; x < cubeCount; ++x)
-        {
-            for (int z = 0; z < cubeCount; ++z)
-            {
-                for (int y = 0; y < cubeHeightCount; ++y)
-                {
-                    var cube = arrCube[x, z, y];
-                    
-                    cube.ScalarVal[0] = GetWaveHeight(x, z + 1, y);
-                    cube.ScalarVal[1] = GetWaveHeight(x + 1, z + 1, y);
-                    cube.ScalarVal[2] = GetWaveHeight(x + 1, z, y);
-                    cube.ScalarVal[3] = GetWaveHeight(x, z , y);
-                    
-                    cube.ScalarVal[4] = GetWaveHeight(x, z + 1, y + 1);
-                    cube.ScalarVal[5] = GetWaveHeight(x + 1, z + 1, y + 1);
-                    cube.ScalarVal[6] = GetWaveHeight(x + 1, z, y + 1);
-                    cube.ScalarVal[7] = GetWaveHeight(x, z, y + 1);
-                    cube.CalcIsoSurface();
-                }
-            }
-        }
+        cubeGenerator.CalcMeshes();
     }
 
-    private float GetWaveHeight(int x, int z, int y)
+    private void SetWaveHeight(int x, int z)
     {
-        float height = arrWaveVal[x, z] - y;
-        return Mathf.Clamp01(height);
+        for (int y = 0; y < cubeHeightCount; ++y)
+        {
+            cubeGenerator.SetScalar(x, z, y, Mathf.Clamp01(arrWaveVal[x, z] - y));
+        }
     }
 }
