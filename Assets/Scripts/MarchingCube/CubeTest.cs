@@ -8,9 +8,9 @@ public class CubeTest : MonoBehaviour
     [SerializeField] int cubeCount;
     [SerializeField] int cubeHeightCount;
     
-    [SerializeField] MC.Cube prefab;
+    [SerializeField] Bean.MC.Cube prefab;
     
-    private MC.Cube[,,] arrCube;
+    private Bean.MC.Cube[,,] arrCube;
 
     private float[,] arrWaveVal;
     private int[,] arrWaveDir;
@@ -21,7 +21,7 @@ public class CubeTest : MonoBehaviour
     
     private void Awake()
     {
-        arrCube = new MC.Cube[cubeCount, cubeCount, cubeHeightCount ];
+        arrCube = new Bean.MC.Cube[cubeCount, cubeCount, cubeHeightCount ];
         
         for (int x = 0; x < cubeCount; ++x)
         {

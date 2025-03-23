@@ -5,7 +5,7 @@ using Define;
 using UnityEngine;
 
 
-namespace MC
+namespace Bean.MC
 {
     /// <summary>
     /// 마칭 큐브 구현을 위한 클래스
