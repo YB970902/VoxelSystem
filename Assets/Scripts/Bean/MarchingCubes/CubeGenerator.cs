@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Define;
 using UnityEngine;
 
 namespace Bean.MC
@@ -53,7 +54,7 @@ namespace Bean.MC
                     for (int y = 0; y < AxisYCount; ++y)
                     {
                         var cube = GameObject.Instantiate(prefab);
-                        cube.transform.position = new Vector3(x, y, z);
+                        cube.transform.position = new Vector3(x * MarchingCubes.CubeSize, y * MarchingCubes.CubeSize, z * MarchingCubes.CubeSize);
                         cubes[x, z, y] = cube;
                     }
                 }

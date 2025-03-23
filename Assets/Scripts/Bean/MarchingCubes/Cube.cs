@@ -349,14 +349,14 @@ namespace Bean.MC
 
             gridPos = new List<Vector3>()
             {
-                new Vector3(-0.5f, 0, 0.5f),
-                new Vector3(0.5f, 0, 0.5f),
-                new Vector3(0.5f, 0, -0.5f),
-                new Vector3(-0.5f, 0, -0.5f),
-                new Vector3(-0.5f, 1f, 0.5f),
-                new Vector3(0.5f, 1f, 0.5f),
-                new Vector3(0.5f, 1f, -0.5f),
-                new Vector3(-0.5f, 1f, -0.5f)
+                new Vector3(-MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize),
+                new Vector3(MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize),
+                new Vector3(MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize),
+                new Vector3(-MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize),
+                new Vector3(-MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize),
+                new Vector3(MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize),
+                new Vector3(MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize),
+                new Vector3(-MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize)
             };
         }
 
