@@ -8,9 +8,9 @@ public class CubeTest : MonoBehaviour
     [SerializeField] int cubeCount;
     [SerializeField] int cubeHeightCount;
     
-    [SerializeField] MarchingCube prefab;
+    [SerializeField] MC.Cube prefab;
     
-    private MarchingCube[,,] arrCube;
+    private MC.Cube[,,] arrCube;
 
     private float[,] arrWaveVal;
     private int[,] arrWaveDir;
@@ -21,7 +21,7 @@ public class CubeTest : MonoBehaviour
     
     private void Awake()
     {
-        arrCube = new MarchingCube[cubeCount, cubeCount, cubeHeightCount ];
+        arrCube = new MC.Cube[cubeCount, cubeCount, cubeHeightCount ];
         
         for (int x = 0; x < cubeCount; ++x)
         {
@@ -97,15 +97,15 @@ public class CubeTest : MonoBehaviour
                 {
                     var cube = arrCube[x, z, y];
                     
-                    cube.GridVal[0] = GetWaveHeight(x, z + 1, y);
-                    cube.GridVal[1] = GetWaveHeight(x + 1, z + 1, y);
-                    cube.GridVal[2] = GetWaveHeight(x + 1, z, y);
-                    cube.GridVal[3] = GetWaveHeight(x, z , y);
+                    cube.ScalarVal[0] = GetWaveHeight(x, z + 1, y);
+                    cube.ScalarVal[1] = GetWaveHeight(x + 1, z + 1, y);
+                    cube.ScalarVal[2] = GetWaveHeight(x + 1, z, y);
+                    cube.ScalarVal[3] = GetWaveHeight(x, z , y);
                     
-                    cube.GridVal[4] = GetWaveHeight(x, z + 1, y + 1);
-                    cube.GridVal[5] = GetWaveHeight(x + 1, z + 1, y + 1);
-                    cube.GridVal[6] = GetWaveHeight(x + 1, z, y + 1);
-                    cube.GridVal[7] = GetWaveHeight(x, z, y + 1);
+                    cube.ScalarVal[4] = GetWaveHeight(x, z + 1, y + 1);
+                    cube.ScalarVal[5] = GetWaveHeight(x + 1, z + 1, y + 1);
+                    cube.ScalarVal[6] = GetWaveHeight(x + 1, z, y + 1);
+                    cube.ScalarVal[7] = GetWaveHeight(x, z, y + 1);
                     cube.CalcIsoSurface();
                 }
             }
