@@ -80,7 +80,7 @@ public class CubeTest : MonoBehaviour
             }
         }
         
-        cubeGenerator.CalcMeshes();
+        cubeGenerator.UpdateMeshes();
     }
 
     private void SetWaveHeight(int x, int z)

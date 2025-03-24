@@ -12,12 +12,14 @@ namespace Bean.MC
     /// </summary>
     [RequireComponent(typeof(MeshFilter))]
     [RequireComponent(typeof(MeshRenderer))]
+    [RequireComponent(typeof(MeshCollider))]
     public class Cube : MonoBehaviour
     {
         private Mesh mesh;
 
         private MeshFilter meshFilter;
         private MeshRenderer meshRenderer;
+        private MeshCollider meshCollider;
 
         #region LookupTable
 
@@ -335,13 +337,17 @@ namespace Bean.MC
 
         /// <summary> 서브메시의 인덱스를 결정하는 함수 </summary>
         private Func<Vector3, int> cbSubMeshIndex;
+        
+        /// <summary> 마칭큐브 연산에 필요한 버텍스 리스트 </summary>
+        List<Vector3> vertList;
 
         private void Awake()
         {
             meshFilter = GetComponent<MeshFilter>();
             meshRenderer = GetComponent<MeshRenderer>();
+            meshCollider = GetComponent<MeshCollider>();
             mesh = new Mesh();
-            meshFilter.mesh = mesh;
+            meshFilter.sharedMesh = mesh;
             
             vertices = new List<Vector3>(12);
             triangles = new List<int>(12);
@@ -362,6 +368,13 @@ namespace Bean.MC
                 new Vector3(MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize),
                 new Vector3(MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize),
                 new Vector3(-MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize)
+            };
+
+            vertList = new List<Vector3>()
+            {
+                Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero,
+                Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero,
+                Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero,
             };
         }
 
@@ -399,12 +412,6 @@ namespace Bean.MC
                 return;
             }
 
-            List<Vector3> vertList = new List<Vector3>(12);
-            for (int i = 0; i < 12; ++i)
-            {
-                vertList.Add(Vector3.zero);
-            }
-
             if ((edgeTable[cubeIndex] & 1) != 0)
                 vertList[0] = VertexInterp(gridPos[0], gridPos[1], ScalarVal[0], ScalarVal[1]);
             if ((edgeTable[cubeIndex] & 2) != 0)
@@ -430,32 +437,59 @@ namespace Bean.MC
             if ((edgeTable[cubeIndex] & 2048) != 0)
                 vertList[11] = VertexInterp(gridPos[3], gridPos[7], ScalarVal[3], ScalarVal[7]);
 
+            const float epsilon = 0.0001f;
+
+            int currTriangle = 0;
+            
             for (int i = 0; triTable[cubeIndex, i] != -1; i += 3)
             {
-                vertices.Add(vertList[triTable[cubeIndex, i]]);
-                vertices.Add(vertList[triTable[cubeIndex, i + 1]]);
-                vertices.Add(vertList[triTable[cubeIndex, i + 2]]);
-                triangles.Add(i);
-                triangles.Add(i + 1);
-                triangles.Add(i + 2);
+                Vector3 vert1 = vertList[triTable[cubeIndex, i]];
+                Vector3 vert2 = vertList[triTable[cubeIndex, i + 1]];
+                Vector3 vert3 = vertList[triTable[cubeIndex, i + 2]];
+
+                float area = 0.5f * Vector3.Cross(vert2 - vert1, vert3 - vert1).magnitude;
+                if (area <= epsilon)
+                {
+                    continue;
+                }
+                
+                vertices.Add(vert1);
+                vertices.Add(vert2);
+                vertices.Add(vert3);
+                triangles.Add(currTriangle);
+                triangles.Add(currTriangle + 1);
+                triangles.Add(currTriangle + 2);
+                currTriangle += 3;
             }
             
-            gameObject.SetActive(vertices.Count > 0);
+            gameObject.SetActive(vertices.Count >= 3);
             
-            if (vertices.Count == 0) return;
+            if (vertices.Count < 3) return;
 
             mesh.Clear();
             mesh.subMeshCount = meshRenderer.materials.Length;
             mesh.SetVertices(vertices);
             mesh.SetTriangles(triangles, cbSubMeshIndex(transform.position));
             mesh.RecalculateNormals();
+
+            try
+            {
+                meshCollider.sharedMesh = null;
+                meshCollider.sharedMesh = meshFilter.sharedMesh;
+            }
+            catch (Exception e)
+            {
+                Debug.Log($"Error! : {transform.position}");
+                throw;
+            }
         }
 
         private Vector3 VertexInterp(Vector3 vec1, Vector3 vec2, float scalar1, float scalar2)
         {
-            if (Mathf.Abs(MarchingCubes.IsoLevel - scalar1) < 0.0001f) return vec1;
-            if (Mathf.Abs(MarchingCubes.IsoLevel - scalar2) < 0.0001f) return vec2;
-            if (Mathf.Abs(scalar1 - scalar2) < 0.0001f) return vec1;
+            const float epsilon = 0.0001f;
+            if (Mathf.Abs(MarchingCubes.IsoLevel - scalar1) < epsilon) return vec1;
+            if (Mathf.Abs(MarchingCubes.IsoLevel - scalar2) < epsilon) return vec2;
+            if (Mathf.Abs(scalar1 - scalar2) < epsilon) return vec1;
 
             Vector3 p = Vector3.zero;
             float mu = (MarchingCubes.IsoLevel - scalar1) / (scalar2 - scalar1);
@@ -465,5 +499,22 @@ namespace Bean.MC
 
             return p;
         }
+        
+        #region Test
+        #if UNITY_EDITOR
+        
+        public void SetEnableMeshRenderer(bool enable)
+        {
+            meshRenderer.enabled = enable;
+        }
+
+        public void SetEnableMeshCollider(bool enable)
+        {
+            meshCollider.enabled = enable;
+            if(enable) meshCollider.sharedMesh = meshFilter.sharedMesh;
+        }
+        
+        #endif
+        #endregion
     }
 }

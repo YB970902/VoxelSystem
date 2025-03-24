@@ -30,6 +30,11 @@ namespace Bean.MC
         /// <summary> Z축 큐브 개수 </summary>
         public int AxisZCount { get; private set; }
 
+        /// <summary> 실제로 업데이트가 이루어지는 타이밍 </summary>
+        public int UpdateTick { get; private set; }
+
+        private int currUpdateTick;
+
         /// <summary>
         /// 큐브의 프리팹
         /// TODO : Address 설정이 되면, 생성자에서 받아오는 것을 주소로 받아오도록 수정하기.
@@ -38,12 +43,16 @@ namespace Bean.MC
 
         private Func<Vector3, int> cbSubMeshIndex;
 
-        public CubeGenerator(int axisX, int axisZ, int axisY, Cube prefab)
+        public CubeGenerator(int axisX, int axisZ, int axisY, Cube prefab, int updateTick = 1, Transform trCubeParent = null)
         {
+            this.trCubeParent = trCubeParent;
             this.prefab = prefab;
             AxisXCount = axisX;
             AxisZCount = axisZ;
             AxisYCount = axisY;
+            currUpdateTick = 0;
+            UpdateTick = updateTick;
+            currUpdateTick = 0;
         }
 
         public void Init(Func<Vector3, int> cbSubMeshIndex = null)
@@ -57,7 +66,7 @@ namespace Bean.MC
                 {
                     for (int y = 0; y < AxisYCount; ++y)
                     {
-                        var cube = GameObject.Instantiate(prefab);
+                        var cube = GameObject.Instantiate(prefab, trCubeParent);
                         cube.Init(CalcSubMeshIndex);
                         cube.transform.position = new Vector3(x * MarchingCubes.CubeSize, y * MarchingCubes.CubeSize, z * MarchingCubes.CubeSize);
                         cubes[x, z, y] = cube;
@@ -98,8 +107,12 @@ namespace Bean.MC
         /// <summary>
         /// 스칼라 필드를 기준으로 메시를 계산한다.
         /// </summary>
-        public void CalcMeshes()
+        public void UpdateMeshes()
         {
+            // 현재 UpdateTick이 0일때만 실제로 갱신을 한다.
+            currUpdateTick = (currUpdateTick + 1) % UpdateTick;
+            if (currUpdateTick > 0) return;
+            
             for (int x = 0; x < AxisXCount; ++x)
             {
                 for (int z = 0; z < AxisZCount; ++z)
@@ -134,5 +147,32 @@ namespace Bean.MC
             
             return cbSubMeshIndex(position);
         }
+
+        #region TEST
+        #if UNITY_EDITOR
+
+        public bool IsMeshRendererEnabled { get; private set; } = true;
+        public bool IsMeshColliderEnabled { get; private set; } = true;
+        
+        public void SetEnableMeshRenderer(bool enable)
+        {
+            IsMeshRendererEnabled = enable;
+            foreach (var cube in cubes)
+            {
+                cube.SetEnableMeshRenderer(enable);
+            }
+        }
+        
+        public void SetEnableMeshCollider(bool enable)
+        {
+            IsMeshColliderEnabled = enable;
+            foreach (var cube in cubes)
+            {
+                cube.SetEnableMeshCollider(enable);
+            }
+        }
+        
+        #endif
+        #endregion
     }
 }
