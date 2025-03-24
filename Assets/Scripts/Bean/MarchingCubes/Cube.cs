@@ -448,6 +448,7 @@ namespace Bean.MC
             mesh.subMeshCount = meshRenderer.materials.Length;
             mesh.SetVertices(vertices);
             mesh.SetTriangles(triangles, cbSubMeshIndex(transform.position));
+            mesh.RecalculateNormals();
         }
 
         private Vector3 VertexInterp(Vector3 vec1, Vector3 vec2, float scalar1, float scalar2)
