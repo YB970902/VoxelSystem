@@ -1,17 +1,17 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using Bean.MC;
 using Bean.Noise;
 using Define;
 using UnityEngine;
 
-public class NoiseTest : MarchingCubesTestBase
+public class CollisionTest : MarchingCubesTestBase
 {
     private PerlinNoise noise;
     private CubeGenerator generator;
 
+    [SerializeField] private int UpdateTick = 1;
+    
     [SerializeField] private float moveSpeed;
     
     [SerializeField] private int noiseGridScale;
@@ -32,7 +32,7 @@ public class NoiseTest : MarchingCubesTestBase
         
         noise = new PerlinNoise(gridXCount, gridZCount, 1f);
         noise.Init();
-        generator = new CubeGenerator(axisXCount, axisZCount, axisYCount, prefab);
+        generator = new CubeGenerator(axisXCount, axisZCount, axisYCount, prefab, UpdateTick, transform);
         generator.Init(CalcSubMeshIndex);
 
         for (int x = 0; x < axisXCount; ++x)
@@ -69,6 +69,19 @@ public class NoiseTest : MarchingCubesTestBase
         
         offset.x = Mathf.Clamp(offset.x, 0f, maxOffset.x);
         offset.y = Mathf.Clamp(offset.y, 0f, maxOffset.y);
+
+        #if UNITY_EDITOR
+        
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            generator.SetEnableMeshRenderer(!generator.IsMeshRendererEnabled);
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            generator.SetEnableMeshCollider(!generator.IsMeshColliderEnabled);
+        }
+        
+        #endif
     }
 
     private void SetHeight(int x, int z)
