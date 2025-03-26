@@ -408,7 +408,7 @@ namespace Bean.MC
             // 모두 꽉 차있으면 계산할 필요가 없고, 보일 필요도 없다다.
             if (edgeTable[cubeIndex] == 0)
             {
-                gameObject.SetActive(false);
+                mesh.Clear();
                 return;
             }
 
@@ -462,8 +462,6 @@ namespace Bean.MC
                 currTriangle += 3;
             }
             
-            gameObject.SetActive(vertices.Count >= 3);
-            
             if (vertices.Count < 3) return;
 
             mesh.Clear();
@@ -472,16 +470,8 @@ namespace Bean.MC
             mesh.SetTriangles(triangles, cbSubMeshIndex(transform.position));
             mesh.RecalculateNormals();
 
-            try
-            {
-                meshCollider.sharedMesh = null;
-                meshCollider.sharedMesh = meshFilter.sharedMesh;
-            }
-            catch (Exception e)
-            {
-                Debug.Log($"Error! : {transform.position}");
-                throw;
-            }
+            meshCollider.sharedMesh = null;
+            meshCollider.sharedMesh = meshFilter.sharedMesh;
         }
 
         private Vector3 VertexInterp(Vector3 vec1, Vector3 vec2, float scalar1, float scalar2)
