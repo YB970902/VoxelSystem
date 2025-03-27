@@ -104,6 +104,11 @@ namespace Bean.MC
             return scalarField[x, z, y];
         }
 
+        public Vector3 GetCubePosition(int x, int z, int y)
+        {
+            return cubes[x, z, y].transform.position;
+        }
+
         /// <summary>
         /// 스칼라 필드를 기준으로 메시를 계산한다.
         /// </summary>
