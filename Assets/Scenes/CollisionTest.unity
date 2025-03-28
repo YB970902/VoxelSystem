@@ -297,7 +297,7 @@ MonoBehaviour:
   UpdateTick: 3
   moveSpeed: 10
   noiseGridScale: 8
-  sphereRadius: 0.25
+  sphereRadius: 0.45
 --- !u!4 &1425760183
 Transform:
   m_ObjectHideFlags: 0

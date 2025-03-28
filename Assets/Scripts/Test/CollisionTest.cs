@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Bean.MC;
@@ -100,13 +101,15 @@ public class CollisionTest : MarchingCubesTestBase
                     {
                         for (int y = minY; y <= maxY; ++y)
                         {
+                            float scalar = scalarField[x, z, y];
+                            if (scalar <= Single.Epsilon) continue;
                             Vector3 cubePos = generator.GetCubePosition(x, z, y);
                             float dist = (point - cubePos).magnitude;
                             if (dist > sphereRadius) continue;
 
-                            float t = Mathf.Clamp01(sphereRadius - dist / cubeSize);
-                            
-                            scalarField[x, z, y] = Mathf.Min(t, scalarField[x, z, y]);
+                            scalar -= sphereRadius - dist;
+
+                            scalarField[x, z, y] = scalar;
                         }
                     }
                 }
