@@ -11,7 +11,7 @@ public class CollisionTest : MarchingCubesTestBase
     private PerlinNoise noise;
     private CubeGenerator generator;
 
-    [SerializeField] private int UpdateTick = 1;
+    [SerializeField] private int UpdateTick;
     
     [SerializeField] private float moveSpeed;
 
@@ -19,8 +19,12 @@ public class CollisionTest : MarchingCubesTestBase
     
     [SerializeField] private float sphereRadius;
 
-    private bool isCircleClicked;
-    private bool isSphereClicked;
+    [SerializeField] private float digTime;
+    [SerializeField] private float digPower;
+
+    private float elapsedTime;
+    private bool isClicked;
+    private bool isDig;
     private Ray ray;
 
     /// <summary>
@@ -35,8 +39,9 @@ public class CollisionTest : MarchingCubesTestBase
         MarchingCubes.IsoLevel = isoLevel;
         MarchingCubes.CubeSize = cubeSize;
 
-        isCircleClicked = false;
-        isSphereClicked = false;
+        elapsedTime = 0f;
+        isClicked = false;
+        isDig = true;
         isDirty = false;
 
         int gridXCount = Mathf.CeilToInt(axisXCount * cubeSize) * noiseGridScale;
@@ -64,7 +69,7 @@ public class CollisionTest : MarchingCubesTestBase
             }
         }
         
-        generator = new CubeGenerator(axisXCount, axisZCount, axisYCount, prefab, 1, transform);
+        generator = new CubeGenerator(axisXCount, axisZCount, axisYCount, prefab, UpdateTick, transform);
         generator.Init(CalcSubMeshIndex);
 
         UpdateScalarField();
@@ -75,9 +80,9 @@ public class CollisionTest : MarchingCubesTestBase
 
     private void FixedUpdate()
     {
-        if (isSphereClicked)
+        if (isClicked && elapsedTime >= digTime)
         {
-            isSphereClicked = false;
+            elapsedTime -= digTime;
             if (Physics.Raycast(ray, out RaycastHit hitInfo))
             {
                 isDirty = true;
@@ -101,13 +106,12 @@ public class CollisionTest : MarchingCubesTestBase
                     {
                         for (int y = minY; y <= maxY; ++y)
                         {
-                            float scalar = scalarField[x, z, y];
-                            if (scalar <= Single.Epsilon) continue;
                             Vector3 cubePos = generator.GetCubePosition(x, z, y);
                             float dist = (point - cubePos).magnitude;
                             if (dist > sphereRadius) continue;
-
-                            scalar -= sphereRadius - dist;
+                            
+                            float scalar = scalarField[x, z, y];
+                            scalar -= isDig ? digPower : -digPower;
 
                             scalarField[x, z, y] = scalar;
                         }
@@ -128,14 +132,28 @@ public class CollisionTest : MarchingCubesTestBase
     {
         if (Input.GetMouseButtonDown(0))
         {
-            isCircleClicked = true;
-            ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            isClicked = true;
+            isDig = true;
+        }
+        else if (Input.GetMouseButtonUp(0))
+        {
+            isClicked = false;
         }
 
         if (Input.GetMouseButtonDown(1))
         {
-            isSphereClicked = true;
+            isClicked = true;
+            isDig = false;
+        }
+        else if (Input.GetMouseButtonUp(1))
+        {
+            isClicked = false;
+        }
+
+        if (isClicked)
+        {
             ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            elapsedTime += Time.deltaTime;
         }
 
         #if UNITY_EDITOR

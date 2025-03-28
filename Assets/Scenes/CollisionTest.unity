@@ -294,10 +294,12 @@ MonoBehaviour:
   prefab: {fileID: 620129781690430014, guid: 989013f600e6c4d3c82feedb6cf822d1, type: 3}
   isoLevel: 0.5
   cubeSize: 0.3
-  UpdateTick: 3
+  UpdateTick: 1
   moveSpeed: 10
   noiseGridScale: 8
   sphereRadius: 0.45
+  digTime: 0.1
+  digPower: 0.1
 --- !u!4 &1425760183
 Transform:
   m_ObjectHideFlags: 0
