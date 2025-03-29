@@ -92,11 +92,11 @@ public class CollisionTest : MarchingCubesTestBase
                 int currZ = (int)(hitInfo.point.z / cubeSize);
                 int currY = (int)(hitInfo.point.y / cubeSize);
                 int minX = Mathf.Max(currX - gridCount, 0);
-                int maxX = Mathf.Min(currX + gridCount, axisXCount);
+                int maxX = Mathf.Min(currX + gridCount, axisXCount - 1);
                 int minZ = Mathf.Max(currZ - gridCount, 0);
-                int maxZ = Mathf.Min(currZ + gridCount, axisZCount);
+                int maxZ = Mathf.Min(currZ + gridCount, axisZCount - 1);
                 int minY = Mathf.Max(currY - gridCount, 0);
-                int maxY = Mathf.Min(currY + gridCount, axisYCount);
+                int maxY = Mathf.Min(currY + gridCount, axisYCount - 1);
 
                 Vector3 point = hitInfo.point;
 
