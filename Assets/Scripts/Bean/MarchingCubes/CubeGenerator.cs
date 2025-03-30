@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Bean.Addressable;
 using Define;
 using UnityEngine;
 
@@ -37,16 +38,15 @@ namespace Bean.MC
 
         /// <summary>
         /// 큐브의 프리팹
-        /// TODO : Address 설정이 되면, 생성자에서 받아오는 것을 주소로 받아오도록 수정하기.
         /// </summary>
         private Cube prefab;
 
         private Func<Vector3, int> cbSubMeshIndex;
 
-        public CubeGenerator(int axisX, int axisZ, int axisY, Cube prefab, int updateTick = 1, Transform trCubeParent = null)
+        public CubeGenerator(int axisX, int axisZ, int axisY, int updateTick = 1, Transform trCubeParent = null)
         {
             this.trCubeParent = trCubeParent;
-            this.prefab = prefab;
+            prefab = AddressableManager.Instance.LoadAssetSync<GameObject>("Sources/Prefabs/MountainCube.prefab", string.Empty).GetComponent<Cube>();
             AxisXCount = axisX;
             AxisZCount = axisZ;
             AxisYCount = axisY;
@@ -73,7 +73,7 @@ namespace Bean.MC
                     }
                 }
             }
-
+            
             scalarField = new float[AxisXCount + 1, AxisZCount + 1, AxisYCount + 1];
             
             for (int x = 0; x < AxisXCount; ++x)
@@ -112,11 +112,11 @@ namespace Bean.MC
         /// <summary>
         /// 스칼라 필드를 기준으로 메시를 계산한다.
         /// </summary>
-        public void UpdateMeshes()
+        public void UpdateMeshes(bool immediate = false)
         {
             // 현재 UpdateTick이 0일때만 실제로 갱신을 한다.
             currUpdateTick = (currUpdateTick + 1) % UpdateTick;
-            if (currUpdateTick > 0) return;
+            if (!immediate && currUpdateTick > 0) return;
             
             for (int x = 0; x < AxisXCount; ++x)
             {
