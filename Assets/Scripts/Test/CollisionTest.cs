@@ -69,7 +69,7 @@ public class CollisionTest : MarchingCubesTestBase
             }
         }
         
-        generator = new CubeGenerator(axisXCount, axisZCount, axisYCount, prefab, UpdateTick, transform);
+        generator = new CubeGenerator(axisXCount, axisZCount, axisYCount, UpdateTick, transform);
         generator.Init(CalcSubMeshIndex);
 
         UpdateScalarField();
