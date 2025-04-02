@@ -47,30 +47,52 @@ public class CollisionTest : MarchingCubesTestBase
         int gridXCount = Mathf.CeilToInt(axisXCount * cubeSize) * noiseGridScale;
         int gridZCount = Mathf.CeilToInt(axisZCount * cubeSize) * noiseGridScale;
         
-        noise = new PerlinNoise(gridXCount, gridZCount, 1f);
-        noise.Init();
+        // noise = new PerlinNoise(gridXCount, gridZCount, 1f);
+        // noise.Init();
         
         scalarField = new float[axisXCount + 1, axisZCount + 1, axisYCount + 1];
 
         // 노이즈로 얻은 값을 스칼라 필드에 넣는다.
+        // for (int x = 0; x < axisXCount; ++x)
+        // {
+        //     for (int z = 0; z < axisZCount; ++z)
+        //     {
+        //         float height = noise.GetNoise(x * cubeSize, z * cubeSize);
+        //         // height가 -1 ~ 1 이므로, 1을 더해서 0 ~ 2 로 만든 뒤에 2로 나눠 0 ~ 1로 만든다.
+        //         height = (height + 1f) * 0.5f;
+        //         height *= axisYCount;
+        //
+        //         for (int y = 0; y < axisYCount; ++y)
+        //         {
+        //             scalarField[x, z, y] = Mathf.Clamp01(height - y);
+        //         }
+        //     }
+        // }
+        
+        FastNoiseLite noise = new FastNoiseLite();
+
+        // 노이즈 타입 설정 (예: Worley / fBM)
+        noise.SetNoiseType(FastNoiseLite.NoiseType.Cellular); // Worley
+        noise.SetFractalType(FastNoiseLite.FractalType.FBm);  // fBM
+        noise.SetFrequency(0.02f); // 주파수 설정 (값이 작을수록 큰 패턴)
+
+        generator = new CubeGenerator(axisXCount, axisZCount, axisYCount, UpdateTick, transform);
+        generator.Init(CalcSubMeshIndex);
+
+        const float scaling = 0.01f;
         for (int x = 0; x < axisXCount; ++x)
         {
             for (int z = 0; z < axisZCount; ++z)
             {
-                float height = noise.GetNoise(x * cubeSize, z * cubeSize);
-                // height가 -1 ~ 1 이므로, 1을 더해서 0 ~ 2 로 만든 뒤에 2로 나눠 0 ~ 1로 만든다.
-                height = (height + 1f) * 0.5f;
-                height *= axisYCount;
-        
                 for (int y = 0; y < axisYCount; ++y)
                 {
-                    scalarField[x, z, y] = Mathf.Clamp01(height - y);
+                    float noiseValue = noise.GetNoise(x, y, z);
+                    noiseValue = (noiseValue + 1.0f) * 0.5f;
+                    Debug.Log(noiseValue);
+                    scalarField[x, z, y] = noiseValue;
                 }
             }
         }
-        
-        generator = new CubeGenerator(axisXCount, axisZCount, axisYCount, UpdateTick, transform);
-        generator.Init(CalcSubMeshIndex);
 
         UpdateScalarField();
         
