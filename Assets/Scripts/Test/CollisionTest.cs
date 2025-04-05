@@ -72,7 +72,7 @@ public class CollisionTest : MarchingCubesTestBase
         FastNoiseLite noise = new FastNoiseLite();
 
         // 노이즈 타입 설정 (예: Worley / fBM)
-        noise.SetNoiseType(FastNoiseLite.NoiseType.Cellular); // Worley
+        noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2); // Worley
         noise.SetFractalType(FastNoiseLite.FractalType.FBm);  // fBM
         noise.SetFrequency(0.02f); // 주파수 설정 (값이 작을수록 큰 패턴)
 
@@ -86,7 +86,7 @@ public class CollisionTest : MarchingCubesTestBase
             {
                 for (int y = 0; y < axisYCount; ++y)
                 {
-                    float noiseValue = noise.GetNoise(x, y, z);
+                    float noiseValue = noise.GetNoise(x * cubeSize, y * cubeSize, z * cubeSize);
                     noiseValue = (noiseValue + 1.0f) * 0.5f;
                     Debug.Log(noiseValue);
                     scalarField[x, z, y] = noiseValue;
