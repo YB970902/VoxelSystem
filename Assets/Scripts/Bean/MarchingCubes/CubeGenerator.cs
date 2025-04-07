@@ -19,6 +19,9 @@ namespace Bean.MC
         /// <summary> 큐브 인스턴스 배열 </summary>
         private Cube[,,] cubes;
 
+        /// <summary> 테스트용 청크 </summary>
+        private Chunk testChunk;
+
         /// <summary> 꼭짓점의 스칼라값이 있는 필드 </summary>
         private float[,,] scalarField;
 
@@ -43,13 +46,14 @@ namespace Bean.MC
 
         private Func<Vector3, int> cbSubMeshIndex;
 
-        public CubeGenerator(int axisX, int axisZ, int axisY, int updateTick = 1, Transform trCubeParent = null)
+        public CubeGenerator(int axisX, int axisY, int axisZ, int updateTick = 1, Transform trCubeParent = null)
         {
+            testChunk = new GameObject("TestChunk").AddComponent<Chunk>();
             this.trCubeParent = trCubeParent;
             prefab = AddressableManager.Instance.LoadAssetSync<GameObject>("Sources/Prefabs/MountainCube.prefab", string.Empty).GetComponent<Cube>();
             AxisXCount = axisX;
-            AxisZCount = axisZ;
             AxisYCount = axisY;
+            AxisZCount = axisZ;
             currUpdateTick = 0;
             UpdateTick = updateTick;
             currUpdateTick = 0;
@@ -58,31 +62,32 @@ namespace Bean.MC
         public void Init(Func<Vector3, int> cbSubMeshIndex = null)
         {
             this.cbSubMeshIndex = cbSubMeshIndex;
-            cubes = new Cube[AxisXCount, AxisZCount, AxisYCount];
+            cubes = new Cube[AxisXCount, AxisYCount, AxisZCount];
             
             for (int x = 0; x < AxisXCount; ++x)
             {
-                for (int z = 0; z < AxisZCount; ++z)
+                for (int y = 0; y < AxisYCount; ++y)
                 {
-                    for (int y = 0; y < AxisYCount; ++y)
+                    for (int z = 0; z < AxisZCount; ++z)
                     {
                         var cube = GameObject.Instantiate(prefab, trCubeParent);
+                        cube.hideFlags = HideFlags.HideInInspector;
                         cube.Init(CalcSubMeshIndex);
                         cube.transform.position = new Vector3(x * MarchingCubes.CubeSize, y * MarchingCubes.CubeSize, z * MarchingCubes.CubeSize);
-                        cubes[x, z, y] = cube;
+                        cubes[x, y, z] = cube;
                     }
                 }
             }
             
-            scalarField = new float[AxisXCount + 1, AxisZCount + 1, AxisYCount + 1];
+            scalarField = new float[AxisXCount + 1, AxisYCount + 1, AxisZCount + 1];
             
             for (int x = 0; x < AxisXCount; ++x)
             {
-                for (int z = 0; z < AxisZCount; ++z)
+                for (int y = 0; y < AxisYCount; ++y)
                 {
-                    for (int y = 0; y < AxisYCount; ++y)
+                    for (int z = 0; z < AxisZCount; ++z)
                     {
-                        scalarField[x, z, y] = 1f;
+                        scalarField[x, y, z] = 1f;
                     }
                 }
             }
@@ -91,22 +96,22 @@ namespace Bean.MC
         /// <summary>
         /// 스칼라값을 세팅한다.
         /// </summary>
-        public void SetScalar(int x, int z, int y, float scalar)
+        public void SetScalar(int x, int y, int z, float scalar)
         {
-            scalarField[x, z, y] = scalar;
+            scalarField[x, y, z] = scalar;
         }
 
         /// <summary>
         /// 스칼라 값을 반환한다.
         /// </summary>
-        public float GetScalar(int x, int z, int y)
+        public float GetScalar(int x, int y, int z)
         {
-            return scalarField[x, z, y];
+            return scalarField[x, y, z];
         }
 
-        public Vector3 GetCubePosition(int x, int z, int y)
+        public Vector3 GetCubePosition(int x, int y, int z)
         {
-            return cubes[x, z, y].transform.position;
+            return cubes[x, y, z].transform.position;
         }
 
         /// <summary>
@@ -120,26 +125,40 @@ namespace Bean.MC
             
             for (int x = 0; x < AxisXCount; ++x)
             {
-                for (int z = 0; z < AxisZCount; ++z)
+                for (int y = 0; y < AxisYCount; ++y)
                 {
-                    for (int y = 0; y < AxisYCount; ++y)
+                    for (int z = 0; z < AxisZCount; ++z)
                     {
-                        var cube = cubes[x, z, y];
+                        var cube = cubes[x, y, z];
 
-                        cube.ScalarVal[0] = scalarField[x, z + 1, y];
-                        cube.ScalarVal[1] = scalarField[x + 1, z + 1, y];
-                        cube.ScalarVal[2] = scalarField[x + 1, z, y];
-                        cube.ScalarVal[3] = scalarField[x, z, y];
+                        cube.ScalarVal[0] = scalarField[x, y, z + 1];
+                        cube.ScalarVal[1] = scalarField[x + 1, y, z + 1];
+                        cube.ScalarVal[2] = scalarField[x + 1, y, z];
+                        cube.ScalarVal[3] = scalarField[x, y, z];
 
-                        cube.ScalarVal[4] = scalarField[x, z + 1, y + 1];
-                        cube.ScalarVal[5] = scalarField[x + 1, z + 1, y + 1];
-                        cube.ScalarVal[6] = scalarField[x + 1, z, y + 1];
-                        cube.ScalarVal[7] = scalarField[x, z, y + 1];
+                        cube.ScalarVal[4] = scalarField[x, y + 1, z + 1];
+                        cube.ScalarVal[5] = scalarField[x + 1, y + 1, z + 1];
+                        cube.ScalarVal[6] = scalarField[x + 1, y + 1, z];
+                        cube.ScalarVal[7] = scalarField[x, y + 1, z];
 
                         cube.CalcIsoSurface();
                     }
                 }
             }
+            
+            testChunk.Combine(cubes, CalcSubMeshIndex);
+            
+             for (int x = 0; x < AxisXCount; ++x)
+             {
+                 for (int y = 0; y < AxisYCount; ++y)
+                 {
+                     for (int z = 0; z < AxisZCount; ++z)
+                     {
+                         var cube = cubes[x, y, z];
+                         cube.gameObject.SetActive(false);
+                     }
+                 }
+             }
         }
 
         /// <summary>

@@ -288,10 +288,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 711c342505c3742ff98c998146e18d6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  axisXCount: 20
+  axisXCount: 10
   axisYCount: 10
-  axisZCount: 20
-  prefab: {fileID: 620129781690430014, guid: 989013f600e6c4d3c82feedb6cf822d1, type: 3}
+  axisZCount: 10
   isoLevel: 0.5
   cubeSize: 0.3
   UpdateTick: 1

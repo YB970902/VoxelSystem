@@ -15,11 +15,16 @@ namespace Bean.MC
     [RequireComponent(typeof(MeshCollider))]
     public class Cube : MonoBehaviour
     {
-        private Mesh mesh;
+        public Mesh Mesh { get; private set; }
 
-        private MeshFilter meshFilter;
-        private MeshRenderer meshRenderer;
-        private MeshCollider meshCollider;
+        public MeshFilter MeshFilter { get; private set; }
+        public MeshRenderer MeshRenderer { get; private set; }
+        public MeshCollider MeshCollider { get; private set; }
+        
+        /// <summary>
+        /// 메시를 가지고 있는지 여부
+        /// </summary>
+        public bool HasMesh { get; private set; }
 
         #region LookupTable
 
@@ -343,11 +348,11 @@ namespace Bean.MC
 
         private void Awake()
         {
-            meshFilter = GetComponent<MeshFilter>();
-            meshRenderer = GetComponent<MeshRenderer>();
-            meshCollider = GetComponent<MeshCollider>();
-            mesh = new Mesh();
-            meshFilter.sharedMesh = mesh;
+            MeshFilter = GetComponent<MeshFilter>();
+            MeshRenderer = GetComponent<MeshRenderer>();
+            MeshCollider = GetComponent<MeshCollider>();
+            Mesh = new Mesh();
+            MeshFilter.sharedMesh = Mesh;
             
             vertices = new List<Vector3>(12);
             triangles = new List<int>(12);
@@ -395,6 +400,8 @@ namespace Bean.MC
 
             triangles.Clear();
             vertices.Clear();
+            
+            HasMesh = false;
 
             if (ScalarVal[0] < MarchingCubes.IsoLevel) cubeIndex |= 1;
             if (ScalarVal[1] < MarchingCubes.IsoLevel) cubeIndex |= 2;
@@ -405,12 +412,15 @@ namespace Bean.MC
             if (ScalarVal[6] < MarchingCubes.IsoLevel) cubeIndex |= 64;
             if (ScalarVal[7] < MarchingCubes.IsoLevel) cubeIndex |= 128;
 
-            // 모두 꽉 차있으면 계산할 필요가 없고, 보일 필요도 없다다.
+            // 모두 꽉 차있으면 계산할 필요가 없고, 보일 필요도 없다.
             if (edgeTable[cubeIndex] == 0)
             {
-                mesh.Clear();
+                gameObject.SetActive(false);
+                Mesh.Clear();
                 return;
             }
+            
+            gameObject.SetActive(true);
 
             if ((edgeTable[cubeIndex] & 1) != 0)
                 vertList[0] = VertexInterp(gridPos[0], gridPos[1], ScalarVal[0], ScalarVal[1]);
@@ -461,17 +471,18 @@ namespace Bean.MC
                 triangles.Add(currTriangle + 2);
                 currTriangle += 3;
             }
-            
+
             if (vertices.Count < 3) return;
+            HasMesh = true;
 
-            mesh.Clear();
-            mesh.subMeshCount = meshRenderer.materials.Length;
-            mesh.SetVertices(vertices);
-            mesh.SetTriangles(triangles, cbSubMeshIndex(transform.position));
-            mesh.RecalculateNormals();
+            Mesh.Clear();
+            Mesh.subMeshCount = MeshRenderer.materials.Length;
+            Mesh.SetVertices(vertices);
+            Mesh.SetTriangles(triangles, cbSubMeshIndex(transform.position));
+            Mesh.RecalculateNormals();
 
-            meshCollider.sharedMesh = null;
-            meshCollider.sharedMesh = meshFilter.sharedMesh;
+            MeshCollider.sharedMesh = null;
+            MeshCollider.sharedMesh = MeshFilter.sharedMesh;
         }
 
         private Vector3 VertexInterp(Vector3 vec1, Vector3 vec2, float scalar1, float scalar2)
@@ -495,13 +506,13 @@ namespace Bean.MC
         
         public void SetEnableMeshRenderer(bool enable)
         {
-            meshRenderer.enabled = enable;
+            MeshRenderer.enabled = enable;
         }
 
         public void SetEnableMeshCollider(bool enable)
         {
-            meshCollider.enabled = enable;
-            if(enable) meshCollider.sharedMesh = meshFilter.sharedMesh;
+            MeshCollider.enabled = enable;
+            if(enable) MeshCollider.sharedMesh = MeshFilter.sharedMesh;
         }
         
         #endif
