@@ -18,14 +18,16 @@ namespace Bean.MC
 
         private MeshRenderer meshRenderer;
         private MeshFilter meshFilter;
-
         private Mesh combinedMesh;
+
+        private Material[] sharedMaterials;
         
         private void Awake()
         {
             meshRenderer = GetComponent<MeshRenderer>();
             meshFilter = GetComponent<MeshFilter>();
             combinedMesh = new Mesh();
+            combinedMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32; // 큰 메시도 지원
             combineInstances = new CombineInstance[Define.MarchingCubes.ChunkSize * Define.MarchingCubes.ChunkSize * Define.MarchingCubes.ChunkSize];
             for (int x = 0; x < Define.MarchingCubes.ChunkSize; ++x)
             {
@@ -40,9 +42,21 @@ namespace Bean.MC
             }
         }
 
+        public void Init(Material[] materials)
+        {
+            this.sharedMaterials = materials;
+            meshFilter.sharedMesh = combinedMesh;
+        }
+
         public void Combine(Cube[,,] cubes, Func<Vector3, int> cbCalcIndex)
         {
-            List<CombineInstance> instances = new List<CombineInstance>();
+            List<List<CombineInstance>> combineInstanceList = new List<List<CombineInstance>>(sharedMaterials.Length);
+            
+            for (int i = 0; i < sharedMaterials.Length; ++i)
+            {
+                combineInstanceList.Add(new List<CombineInstance>());
+            }
+            
             for (int x = 0; x < Define.MarchingCubes.ChunkSize; ++x)
             {
                 for (int y = 0; y < Define.MarchingCubes.ChunkSize; ++y)
@@ -54,21 +68,31 @@ namespace Bean.MC
                         CombineInstance instance = new CombineInstance();
                         instance.mesh = cube.Mesh;
                         instance.transform = cube.transform.localToWorldMatrix;
-                        instances.Add(instance);
-                        instance.subMeshIndex = cbCalcIndex(cube.transform.position);
-                        //int index = GetCombinedIndex(x, y, z);
-                        // CombineInstance ci = combineInstances[index];
-                        // ci.mesh = cube.Mesh;
-                        // ci.transform = cube.transform.localToWorldMatrix;
+                        int subMeshIndex = cbCalcIndex(cube.transform.position);
+                        instance.subMeshIndex = subMeshIndex;
+                        combineInstanceList[subMeshIndex].Add(instance);
                     }
                 }
             }
             
-            combinedMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32; // 큰 메시도 지원
-            combinedMesh.CombineMeshes(instances.ToArray(), true);
-
-            meshFilter.mesh = combinedMesh;
-            meshRenderer.materials = cubes[0,0,0].MeshRenderer.sharedMaterials;
+            List<Material> finalMaterials = new List<Material>(sharedMaterials.Length);
+            List<CombineInstance> finalCombineInstances = new List<CombineInstance>(); 
+            
+            for (int i = 0; i < sharedMaterials.Length; ++i)
+            {
+                if (combineInstanceList[i].Count == 0) continue;
+                Mesh mesh = new Mesh();
+                mesh.CombineMeshes(combineInstanceList[i].ToArray(), true);
+                finalMaterials.Add(sharedMaterials[i]);
+                CombineInstance ci = new CombineInstance();
+                ci.mesh = mesh;
+                ci.subMeshIndex = 0;
+                ci.transform = Matrix4x4.identity;
+                finalCombineInstances.Add(ci);
+            }
+            
+            combinedMesh.CombineMeshes(finalCombineInstances.ToArray(), false);
+            meshRenderer.sharedMaterials = finalMaterials.ToArray();
         }
 
         private int GetCombinedIndex(int x, int y, int z)

@@ -386,9 +386,10 @@ namespace Bean.MC
         /// <summary>
         /// 큐브를 사용할 수 있는 상태로 초기화한다.
         /// </summary>
-        public void Init(Func<Vector3, int> cbSubMeshIndex)
+        public void Init(Func<Vector3, int> cbSubMeshIndex, Material[] sharedMaterials)
         {
             this.cbSubMeshIndex = cbSubMeshIndex;
+            MeshRenderer.sharedMaterials = sharedMaterials;
         }
 
         /// <summary>
@@ -473,6 +474,7 @@ namespace Bean.MC
             }
 
             if (vertices.Count < 3) return;
+            
             HasMesh = true;
 
             Mesh.Clear();
@@ -481,7 +483,6 @@ namespace Bean.MC
             Mesh.SetTriangles(triangles, cbSubMeshIndex(transform.position));
             Mesh.RecalculateNormals();
 
-            MeshCollider.sharedMesh = null;
             MeshCollider.sharedMesh = MeshFilter.sharedMesh;
         }
 

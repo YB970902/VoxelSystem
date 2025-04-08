@@ -38,6 +38,8 @@ namespace Bean.MC
         public int UpdateTick { get; private set; }
 
         private int currUpdateTick;
+        
+        private Material[] sharedMaterials;
 
         /// <summary>
         /// 큐브의 프리팹
@@ -48,7 +50,6 @@ namespace Bean.MC
 
         public CubeGenerator(int axisX, int axisY, int axisZ, int updateTick = 1, Transform trCubeParent = null)
         {
-            testChunk = new GameObject("TestChunk").AddComponent<Chunk>();
             this.trCubeParent = trCubeParent;
             prefab = AddressableManager.Instance.LoadAssetSync<GameObject>("Sources/Prefabs/MountainCube.prefab", string.Empty).GetComponent<Cube>();
             AxisXCount = axisX;
@@ -57,6 +58,14 @@ namespace Bean.MC
             currUpdateTick = 0;
             UpdateTick = updateTick;
             currUpdateTick = 0;
+            sharedMaterials = new List<Material>
+            {
+                AddressableManager.Instance.LoadAssetSync<Material>("Sources/Materials/matMountain.mat", string.Empty),
+                AddressableManager.Instance.LoadAssetSync<Material>("Sources/Materials/matMountainTop.mat", string.Empty)
+            }.ToArray();
+            
+            testChunk = new GameObject("TestChunk").AddComponent<Chunk>();
+            testChunk.Init(sharedMaterials);
         }
 
         public void Init(Func<Vector3, int> cbSubMeshIndex = null)
@@ -72,7 +81,7 @@ namespace Bean.MC
                     {
                         var cube = GameObject.Instantiate(prefab, trCubeParent);
                         cube.hideFlags = HideFlags.HideInInspector;
-                        cube.Init(CalcSubMeshIndex);
+                        cube.Init(CalcSubMeshIndex, sharedMaterials);
                         cube.transform.position = new Vector3(x * MarchingCubes.CubeSize, y * MarchingCubes.CubeSize, z * MarchingCubes.CubeSize);
                         cubes[x, y, z] = cube;
                     }
