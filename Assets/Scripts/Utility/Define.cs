@@ -13,6 +13,6 @@ namespace Define
         /// <summary>
         /// 청크 한 변에 위치한 큐브의 개수
         /// </summary>
-        public const int ChunkSize = 10;
+        public const int ChunkSize = 20;
     }
 }

@@ -288,9 +288,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 711c342505c3742ff98c998146e18d6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  axisXCount: 10
-  axisYCount: 10
-  axisZCount: 10
+  axisXCount: 20
+  axisYCount: 20
+  axisZCount: 20
   isoLevel: 0.5
   cubeSize: 0.3
   UpdateTick: 1

@@ -22,6 +22,9 @@ namespace Bean.MC
         /// <summary> 테스트용 청크 </summary>
         private Chunk testChunk;
 
+        /// <summary> 청크를 묶어주는 바인다. 하나의 인스턴스만 가지고 있다. </summary>
+        private ChunkBinder chunkBinder;
+
         /// <summary> 꼭짓점의 스칼라값이 있는 필드 </summary>
         private float[,,] scalarField;
 
@@ -64,8 +67,9 @@ namespace Bean.MC
                 AddressableManager.Instance.LoadAssetSync<Material>("Sources/Materials/matMountainTop.mat", string.Empty)
             }.ToArray();
             
+            chunkBinder = new ChunkBinder(sharedMaterials);
             testChunk = new GameObject("TestChunk").AddComponent<Chunk>();
-            testChunk.Init(sharedMaterials);
+            testChunk.Init(sharedMaterials, chunkBinder);
         }
 
         public void Init(Func<Vector3, int> cbSubMeshIndex = null)
