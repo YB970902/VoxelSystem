@@ -57,7 +57,7 @@ namespace Bean.MC
             return x + y * Define.MarchingCubes.ChunkSize + z * chunkSize2;
         }
 
-        public void Combine(Cube[,,] cubes, Func<Vector3, int> cbCalcIndex)
+        public void Combine(List<Cube> cubes, Func<Vector3, int> cbCalcIndex)
         {
             chunkBinder.Bind(cubes, cbCalcIndex, ref combinedMesh, out Material[] materials);
             meshRenderer.sharedMaterials = materials;

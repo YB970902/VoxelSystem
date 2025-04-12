@@ -87,27 +87,21 @@ namespace Bean.MC
         /// <summary>
         /// Cubes를 하나로 묶은 메시를 반환한다.
         /// </summary>
-        public void Bind(Cube[,,] cubes, Func<Vector3, int> cbCalcIndex, ref Mesh mesh, out Material[] materials)
+        public void Bind(List<Cube> cubes, Func<Vector3, int> cbCalcIndex, ref Mesh mesh, out Material[] materials)
         {
             Reset();
-            
+
             // 모든 Cube를 subMeshIndex에 맞게 각각 리스트에 넣는다.
-            for (int x = 0; x < Define.MarchingCubes.ChunkSize; ++x)
+            for (int i = 0, count = cubes.Count; i < count; ++i)
             {
-                for (int y = 0; y < Define.MarchingCubes.ChunkSize; ++y)
-                {
-                    for (int z = 0; z < Define.MarchingCubes.ChunkSize; ++z)
-                    {
-                        Cube cube = cubes[x, y, z];
-                        if (cube.HasMesh == false) continue;
-                        CombineInstance instance = new CombineInstance();
-                        instance.mesh = cube.Mesh;
-                        instance.transform = cube.transform.localToWorldMatrix;
-                        int subMeshIndex = cbCalcIndex(cube.transform.position);
-                        instance.subMeshIndex = subMeshIndex;
-                        combineInstanceList[subMeshIndex].Add(instance);
-                    }
-                }
+                Cube cube = cubes[i];
+                if (cube.HasMesh == false) continue;
+                CombineInstance instance = new CombineInstance();
+                instance.mesh = cube.Mesh;
+                instance.transform = cube.transform.localToWorldMatrix;
+                int subMeshIndex = cbCalcIndex(cube.transform.position);
+                instance.subMeshIndex = subMeshIndex;
+                combineInstanceList[subMeshIndex].Add(instance);
             }
             
             // 리스트에 들어간 메시들을 하나씩 묶는다.
