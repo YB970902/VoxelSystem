@@ -66,7 +66,7 @@ namespace Bean.MC
         public CubeGenerator(int axisX, int axisY, int axisZ, int updateTick = 1, Transform trCubeParent = null)
         {
             this.trCubeParent = trCubeParent;
-            prefabCube = AddressableManager.Instance.LoadAssetSync<GameObject>("Sources/Prefabs/MountainCube.prefab", string.Empty).GetComponent<Cube>();
+            //prefabCube = AddressableManager.Instance.LoadAssetSync<GameObject>("Sources/Prefabs/MountainCube.prefab", string.Empty).GetComponent<Cube>();
             prefabChunk = AddressableManager.Instance.LoadAssetSync<GameObject>("Sources/Prefabs/Chunk.prefab", string.Empty).GetComponent<Chunk>();
             AxisXCount = axisX;
             AxisYCount = axisY;
@@ -111,9 +111,8 @@ namespace Bean.MC
                 {
                     for (int z = 0; z < AxisZCount; ++z)
                     {
-                        var cube = GameObject.Instantiate(prefabCube, trCubeParent);
-                        cube.Init(CalcSubMeshIndex, sharedMaterials);
-                        cube.transform.position = new Vector3(x * MarchingCubes.CubeSize, y * MarchingCubes.CubeSize, z * MarchingCubes.CubeSize);
+                        Vector3 position = new Vector3(x * MarchingCubes.CubeSize, y * MarchingCubes.CubeSize, z * MarchingCubes.CubeSize);
+                        var cube = new Cube(sharedMaterials, position, CalcSubMeshIndex);
                         cubes[x, y, z] = cube;
                     }
                 }
@@ -151,7 +150,7 @@ namespace Bean.MC
 
         public Vector3 GetCubePosition(int x, int y, int z)
         {
-            return cubes[x, y, z].transform.position;
+            return cubes[x, y, z].Position;
         }
 
         /// <summary>
@@ -196,18 +195,6 @@ namespace Bean.MC
                     }
                 }
             }
-            
-             for (int x = 0; x < AxisXCount; ++x)
-             {
-                 for (int y = 0; y < AxisYCount; ++y)
-                 {
-                     for (int z = 0; z < AxisZCount; ++z)
-                     {
-                         var cube = cubes[x, y, z];
-                         cube.gameObject.SetActive(false);
-                     }
-                 }
-             }
         }
 
         private List<Cube> GetCubeList(int chunkX, int chunkY, int chunkZ)
@@ -242,32 +229,5 @@ namespace Bean.MC
             
             return cbSubMeshIndex(position);
         }
-
-        #region TEST
-        #if UNITY_EDITOR
-
-        public bool IsMeshRendererEnabled { get; private set; } = true;
-        public bool IsMeshColliderEnabled { get; private set; } = true;
-        
-        public void SetEnableMeshRenderer(bool enable)
-        {
-            IsMeshRendererEnabled = enable;
-            foreach (var cube in cubes)
-            {
-                cube.SetEnableMeshRenderer(enable);
-            }
-        }
-        
-        public void SetEnableMeshCollider(bool enable)
-        {
-            IsMeshColliderEnabled = enable;
-            foreach (var cube in cubes)
-            {
-                cube.SetEnableMeshCollider(enable);
-            }
-        }
-        
-        #endif
-        #endregion
     }
 }

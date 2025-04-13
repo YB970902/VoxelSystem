@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 6083928277471587051}
   - component: {fileID: 3546673800183630029}
   - component: {fileID: 2111239578552165061}
-  - component: {fileID: 620129781690430014}
   - component: {fileID: 3567498075071885156}
+  - component: {fileID: 8704747226746800464}
   m_Layer: 0
   m_Name: MountainCube
   m_TagString: Untagged
@@ -84,18 +84,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &620129781690430014
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3826300051940810224}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2e94543668140478f932b0d7d46503d4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!64 &3567498075071885156
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -118,3 +106,15 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 22
   m_Mesh: {fileID: 0}
+--- !u!114 &8704747226746800464
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3826300051940810224}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42111fe931654436da74e2ea1da5fdff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

@@ -8,18 +8,11 @@ using UnityEngine;
 namespace Bean.MC
 {
     /// <summary>
-    /// 마칭 큐브 구현을 위한 클래스
+    /// 마칭 큐브에서 큐브 한 칸이 가지고 있는 데이터 클래스
     /// </summary>
-    [RequireComponent(typeof(MeshFilter))]
-    [RequireComponent(typeof(MeshRenderer))]
-    [RequireComponent(typeof(MeshCollider))]
-    public class Cube : MonoBehaviour
+    public class Cube
     {
         public Mesh Mesh { get; private set; }
-
-        public MeshFilter MeshFilter { get; private set; }
-        public MeshRenderer MeshRenderer { get; private set; }
-        public MeshCollider MeshCollider { get; private set; }
         
         /// <summary>
         /// 메시를 가지고 있는지 여부
@@ -334,6 +327,7 @@ namespace Bean.MC
         /// <summary> 인덱스 리스트 </summary>
         private List<int> triangles;
 
+        // TODO : 지금은 리스트로 세팅하게끔 되어있는데, 아예 값을 참조해서 쓴다거나, 한방에 값을 넣을 수 있는 방법 생각해보기
         /// <summary> 꼭짓점 스칼라 값 </summary>
         public List<float> ScalarVal { get; set; }
 
@@ -345,14 +339,31 @@ namespace Bean.MC
         
         /// <summary> 마칭큐브 연산에 필요한 버텍스 리스트 </summary>
         List<Vector3> vertList;
+        
+        /// <summary>
+        /// 큐브의 위치
+        /// </summary>
+        public Vector3 Position { get; private set; }
+        
+        /// <summary>
+        /// 청크에 필요한 매트리스 값. 위치가 변하지 않으므로 생성될 때 1회만 값을 세팅한다.
+        /// </summary>
+        public Matrix4x4 Matrix { get; private set; }
 
-        private void Awake()
+        /// <summary> 머터리얼 정보. 큐브마다 다른 머터리얼 정보를 가지고 있을 수 있으므로, 따로 가지고 있는다. </summary>
+        public Material[] SharedMaterials { get; private set; }
+
+        /// <summary>
+        /// 큐브를 생성한다.
+        /// </summary>
+        public Cube(Material[] sharedMaterials, Vector3 position, Func<Vector3, int> cbSubMeshIndex)
         {
-            MeshFilter = GetComponent<MeshFilter>();
-            MeshRenderer = GetComponent<MeshRenderer>();
-            MeshCollider = GetComponent<MeshCollider>();
+            SharedMaterials = sharedMaterials;
+            Position = position;
+            Matrix = Matrix4x4.TRS(position, Quaternion.identity, Vector3.one);
+            this.cbSubMeshIndex = cbSubMeshIndex;
+            
             Mesh = new Mesh();
-            MeshFilter.sharedMesh = Mesh;
             
             vertices = new List<Vector3>(12);
             triangles = new List<int>(12);
@@ -384,15 +395,6 @@ namespace Bean.MC
         }
 
         /// <summary>
-        /// 큐브를 사용할 수 있는 상태로 초기화한다.
-        /// </summary>
-        public void Init(Func<Vector3, int> cbSubMeshIndex, Material[] sharedMaterials)
-        {
-            this.cbSubMeshIndex = cbSubMeshIndex;
-            MeshRenderer.sharedMaterials = sharedMaterials;
-        }
-
-        /// <summary>
         /// 등치면 계산
         /// </summary>
         public void CalcIsoSurface()
@@ -416,13 +418,10 @@ namespace Bean.MC
             // 모두 꽉 차있으면 계산할 필요가 없고, 보일 필요도 없다.
             if (edgeTable[cubeIndex] == 0)
             {
-                gameObject.SetActive(false);
                 Mesh.Clear();
                 return;
             }
             
-            gameObject.SetActive(true);
-
             if ((edgeTable[cubeIndex] & 1) != 0)
                 vertList[0] = VertexInterp(gridPos[0], gridPos[1], ScalarVal[0], ScalarVal[1]);
             if ((edgeTable[cubeIndex] & 2) != 0)
@@ -478,12 +477,10 @@ namespace Bean.MC
             HasMesh = true;
 
             Mesh.Clear();
-            Mesh.subMeshCount = MeshRenderer.materials.Length;
+            Mesh.subMeshCount = SharedMaterials.Length;
             Mesh.SetVertices(vertices);
-            Mesh.SetTriangles(triangles, cbSubMeshIndex(transform.position));
+            Mesh.SetTriangles(triangles, cbSubMeshIndex(Position));
             Mesh.RecalculateNormals();
-
-            MeshCollider.sharedMesh = MeshFilter.sharedMesh;
         }
 
         private Vector3 VertexInterp(Vector3 vec1, Vector3 vec2, float scalar1, float scalar2)
@@ -501,22 +498,5 @@ namespace Bean.MC
 
             return p;
         }
-        
-        #region Test
-        #if UNITY_EDITOR
-        
-        public void SetEnableMeshRenderer(bool enable)
-        {
-            MeshRenderer.enabled = enable;
-        }
-
-        public void SetEnableMeshCollider(bool enable)
-        {
-            MeshCollider.enabled = enable;
-            if(enable) MeshCollider.sharedMesh = MeshFilter.sharedMesh;
-        }
-        
-        #endif
-        #endregion
     }
 }

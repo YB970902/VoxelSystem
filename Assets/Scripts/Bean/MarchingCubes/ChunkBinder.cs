@@ -98,8 +98,8 @@ namespace Bean.MC
                 if (cube.HasMesh == false) continue;
                 CombineInstance instance = new CombineInstance();
                 instance.mesh = cube.Mesh;
-                instance.transform = cube.transform.localToWorldMatrix;
-                int subMeshIndex = cbCalcIndex(cube.transform.position);
+                instance.transform = cube.Matrix;
+                int subMeshIndex = cbCalcIndex(cube.Position);
                 instance.subMeshIndex = subMeshIndex;
                 combineInstanceList[subMeshIndex].Add(instance);
             }

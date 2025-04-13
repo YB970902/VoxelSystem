@@ -175,19 +175,6 @@ public class CollisionTest : MarchingCubesTestBase
             ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             elapsedTime += Time.deltaTime;
         }
-
-        #if UNITY_EDITOR
-        
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            generator.SetEnableMeshRenderer(!generator.IsMeshRendererEnabled);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            generator.SetEnableMeshCollider(!generator.IsMeshColliderEnabled);
-        }
-        
-        #endif
     }
 
     /// <summary>
