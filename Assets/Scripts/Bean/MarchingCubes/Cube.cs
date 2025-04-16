@@ -327,9 +327,15 @@ namespace Bean.MC
         /// <summary> 인덱스 리스트 </summary>
         private List<int> triangles;
 
-        // TODO : 지금은 리스트로 세팅하게끔 되어있는데, 아예 값을 참조해서 쓴다거나, 한방에 값을 넣을 수 있는 방법 생각해보기
-        /// <summary> 꼭짓점 스칼라 값 </summary>
-        public List<float> ScalarVal { get; set; }
+        /// <summary>
+        /// 스칼라 필드. 원본은 아니고 가공해서 만든 값을 참조하여 가지고 있다.
+        /// </summary>
+        private float[,,] scalarField;
+
+        /// <summary>
+        /// 스칼라 필드에 사용될 인덱스. x, y, z값이 가장 작은 값이 들어가있다.
+        /// </summary>
+        private Vector3Int scalarIndex;
 
         /// <summary> 꼭짓점의 로컬좌표 </summary>
         private List<Vector3> gridPos;
@@ -356,8 +362,9 @@ namespace Bean.MC
         /// <summary>
         /// 큐브를 생성한다.
         /// </summary>
-        public Cube(Material[] sharedMaterials, Vector3 position, Func<Vector3, int> cbSubMeshIndex)
+        public Cube(Material[] sharedMaterials, Vector3 position, Func<Vector3, int> cbSubMeshIndex, float[,,] scalarField, Vector3Int index)
         {
+            this.scalarField = scalarField;
             SharedMaterials = sharedMaterials;
             Position = position;
             Matrix = Matrix4x4.TRS(position, Quaternion.identity, Vector3.one);
@@ -367,12 +374,6 @@ namespace Bean.MC
             
             vertices = new List<Vector3>(12);
             triangles = new List<int>(12);
-
-            ScalarVal = new List<float>()
-            {
-                1f, 1f, 1f, 1f,
-                1f, 1f, 1f, 1f
-            };
 
             gridPos = new List<Vector3>()
             {
@@ -395,6 +396,28 @@ namespace Bean.MC
         }
 
         /// <summary>
+        /// 꼭짓점의 인덱스에 맞는 스칼라 값을 반환하는 함수.
+        /// </summary>
+        private float GetScalar(int index)
+        {
+            // 꼭짓점 별 위치
+            // new Vector3(-MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize),
+            // new Vector3(MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize),
+            // new Vector3(MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize),
+            // new Vector3(-MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize),
+            // new Vector3(-MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize),
+            // new Vector3(MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize),
+            // new Vector3(MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize),
+            // new Vector3(-MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize)
+
+            int x = index is 0 or 3 or 4 or 7 ? scalarIndex.x : scalarIndex.x + 1;
+            int y = index is 0 or 1 or 2 or 3 ? scalarIndex.y : scalarIndex.y + 1;
+            int z = index is 2 or 3 or 6 or 7 ? scalarIndex.z : scalarIndex.z + 1;
+
+            return scalarField[x, y, z];
+        }
+
+        /// <summary>
         /// 등치면 계산
         /// </summary>
         public void CalcIsoSurface()
@@ -406,14 +429,14 @@ namespace Bean.MC
             
             HasMesh = false;
 
-            if (ScalarVal[0] < MarchingCubes.IsoLevel) cubeIndex |= 1;
-            if (ScalarVal[1] < MarchingCubes.IsoLevel) cubeIndex |= 2;
-            if (ScalarVal[2] < MarchingCubes.IsoLevel) cubeIndex |= 4;
-            if (ScalarVal[3] < MarchingCubes.IsoLevel) cubeIndex |= 8;
-            if (ScalarVal[4] < MarchingCubes.IsoLevel) cubeIndex |= 16;
-            if (ScalarVal[5] < MarchingCubes.IsoLevel) cubeIndex |= 32;
-            if (ScalarVal[6] < MarchingCubes.IsoLevel) cubeIndex |= 64;
-            if (ScalarVal[7] < MarchingCubes.IsoLevel) cubeIndex |= 128;
+            if (GetScalar(0) < MarchingCubes.IsoLevel) cubeIndex |= 1;
+            if (GetScalar(1) < MarchingCubes.IsoLevel) cubeIndex |= 2;
+            if (GetScalar(2) < MarchingCubes.IsoLevel) cubeIndex |= 4;
+            if (GetScalar(3) < MarchingCubes.IsoLevel) cubeIndex |= 8;
+            if (GetScalar(4) < MarchingCubes.IsoLevel) cubeIndex |= 16;
+            if (GetScalar(5) < MarchingCubes.IsoLevel) cubeIndex |= 32;
+            if (GetScalar(6) < MarchingCubes.IsoLevel) cubeIndex |= 64;
+            if (GetScalar(7) < MarchingCubes.IsoLevel) cubeIndex |= 128;
 
             // 모두 꽉 차있으면 계산할 필요가 없고, 보일 필요도 없다.
             if (edgeTable[cubeIndex] == 0)
@@ -423,29 +446,29 @@ namespace Bean.MC
             }
             
             if ((edgeTable[cubeIndex] & 1) != 0)
-                vertList[0] = VertexInterp(gridPos[0], gridPos[1], ScalarVal[0], ScalarVal[1]);
+                vertList[0] = VertexInterp(gridPos[0], gridPos[1], GetScalar(0), GetScalar(1));
             if ((edgeTable[cubeIndex] & 2) != 0)
-                vertList[1] = VertexInterp(gridPos[1], gridPos[2], ScalarVal[1], ScalarVal[2]);
+                vertList[1] = VertexInterp(gridPos[1], gridPos[2], GetScalar(1), GetScalar(2));
             if ((edgeTable[cubeIndex] & 4) != 0)
-                vertList[2] = VertexInterp(gridPos[2], gridPos[3], ScalarVal[2], ScalarVal[3]);
+                vertList[2] = VertexInterp(gridPos[2], gridPos[3], GetScalar(2), GetScalar(3));
             if ((edgeTable[cubeIndex] & 8) != 0)
-                vertList[3] = VertexInterp(gridPos[3], gridPos[0], ScalarVal[3], ScalarVal[0]);
+                vertList[3] = VertexInterp(gridPos[3], gridPos[0], GetScalar(3), GetScalar(0));
             if ((edgeTable[cubeIndex] & 16) != 0)
-                vertList[4] = VertexInterp(gridPos[4], gridPos[5], ScalarVal[4], ScalarVal[5]);
+                vertList[4] = VertexInterp(gridPos[4], gridPos[5], GetScalar(4), GetScalar(5));
             if ((edgeTable[cubeIndex] & 32) != 0)
-                vertList[5] = VertexInterp(gridPos[5], gridPos[6], ScalarVal[5], ScalarVal[6]);
+                vertList[5] = VertexInterp(gridPos[5], gridPos[6], GetScalar(5), GetScalar(6));
             if ((edgeTable[cubeIndex] & 64) != 0)
-                vertList[6] = VertexInterp(gridPos[6], gridPos[7], ScalarVal[6], ScalarVal[7]);
+                vertList[6] = VertexInterp(gridPos[6], gridPos[7], GetScalar(6), GetScalar(7));
             if ((edgeTable[cubeIndex] & 128) != 0)
-                vertList[7] = VertexInterp(gridPos[7], gridPos[4], ScalarVal[7], ScalarVal[4]);
+                vertList[7] = VertexInterp(gridPos[7], gridPos[4], GetScalar(7), GetScalar(4));
             if ((edgeTable[cubeIndex] & 256) != 0)
-                vertList[8] = VertexInterp(gridPos[0], gridPos[4], ScalarVal[0], ScalarVal[4]);
+                vertList[8] = VertexInterp(gridPos[0], gridPos[4], GetScalar(0), GetScalar(4));
             if ((edgeTable[cubeIndex] & 512) != 0)
-                vertList[9] = VertexInterp(gridPos[1], gridPos[5], ScalarVal[1], ScalarVal[5]);
+                vertList[9] = VertexInterp(gridPos[1], gridPos[5], GetScalar(1), GetScalar(5));
             if ((edgeTable[cubeIndex] & 1024) != 0)
-                vertList[10] = VertexInterp(gridPos[2], gridPos[6], ScalarVal[2], ScalarVal[6]);
+                vertList[10] = VertexInterp(gridPos[2], gridPos[6], GetScalar(2), GetScalar(6));
             if ((edgeTable[cubeIndex] & 2048) != 0)
-                vertList[11] = VertexInterp(gridPos[3], gridPos[7], ScalarVal[3], ScalarVal[7]);
+                vertList[11] = VertexInterp(gridPos[3], gridPos[7], GetScalar(3), GetScalar(7));
 
             const float epsilon = 0.0001f;
 

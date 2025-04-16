@@ -66,7 +66,6 @@ namespace Bean.MC
         public CubeGenerator(int axisX, int axisY, int axisZ, int updateTick = 1, Transform trCubeParent = null)
         {
             this.trCubeParent = trCubeParent;
-            //prefabCube = AddressableManager.Instance.LoadAssetSync<GameObject>("Sources/Prefabs/MountainCube.prefab", string.Empty).GetComponent<Cube>();
             prefabChunk = AddressableManager.Instance.LoadAssetSync<GameObject>("Sources/Prefabs/Chunk.prefab", string.Empty).GetComponent<Chunk>();
             AxisXCount = axisX;
             AxisYCount = axisY;
@@ -103,20 +102,6 @@ namespace Bean.MC
         public void Init(Func<Vector3, int> cbSubMeshIndex = null)
         {
             this.cbSubMeshIndex = cbSubMeshIndex;
-            cubes = new Cube[AxisXCount, AxisYCount, AxisZCount];
-            
-            for (int x = 0; x < AxisXCount; ++x)
-            {
-                for (int y = 0; y < AxisYCount; ++y)
-                {
-                    for (int z = 0; z < AxisZCount; ++z)
-                    {
-                        Vector3 position = new Vector3(x * MarchingCubes.CubeSize, y * MarchingCubes.CubeSize, z * MarchingCubes.CubeSize);
-                        var cube = new Cube(sharedMaterials, position, CalcSubMeshIndex);
-                        cubes[x, y, z] = cube;
-                    }
-                }
-            }
             
             originScalarField = new float[AxisXCount + 1, AxisYCount + 1, AxisZCount + 1];
             
@@ -130,6 +115,23 @@ namespace Bean.MC
                     }
                 }
             }
+
+            scalarField = originScalarField.Clone() as float[,,];
+            
+            cubes = new Cube[AxisXCount, AxisYCount, AxisZCount];
+            
+            for (int x = 0; x < AxisXCount; ++x)
+            {
+                for (int y = 0; y < AxisYCount; ++y)
+                {
+                    for (int z = 0; z < AxisZCount; ++z)
+                    {
+                        Vector3 position = new Vector3(x * MarchingCubes.CubeSize, y * MarchingCubes.CubeSize, z * MarchingCubes.CubeSize);
+                        var cube = new Cube(sharedMaterials, position, CalcSubMeshIndex, scalarField, new Vector3Int(x, y, z));
+                        cubes[x, y, z] = cube;
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -138,14 +140,7 @@ namespace Bean.MC
         public void SetScalar(int x, int y, int z, float scalar)
         {
             originScalarField[x, y, z] = scalar;
-        }
-
-        /// <summary>
-        /// 스칼라 값을 반환한다.
-        /// </summary>
-        public float GetScalar(int x, int y, int z)
-        {
-            return originScalarField[x, y, z];
+            scalarField[x, y, z] = scalar;
         }
 
         public Vector3 GetCubePosition(int x, int y, int z)
@@ -170,15 +165,15 @@ namespace Bean.MC
                     {
                         var cube = cubes[x, y, z];
 
-                        cube.ScalarVal[0] = originScalarField[x, y, z + 1];
-                        cube.ScalarVal[1] = originScalarField[x + 1, y, z + 1];
-                        cube.ScalarVal[2] = originScalarField[x + 1, y, z];
-                        cube.ScalarVal[3] = originScalarField[x, y, z];
-
-                        cube.ScalarVal[4] = originScalarField[x, y + 1, z + 1];
-                        cube.ScalarVal[5] = originScalarField[x + 1, y + 1, z + 1];
-                        cube.ScalarVal[6] = originScalarField[x + 1, y + 1, z];
-                        cube.ScalarVal[7] = originScalarField[x, y + 1, z];
+                        // cube.ScalarVal[0] = originScalarField[x, y, z + 1];
+                        // cube.ScalarVal[1] = originScalarField[x + 1, y, z + 1];
+                        // cube.ScalarVal[2] = originScalarField[x + 1, y, z];
+                        // cube.ScalarVal[3] = originScalarField[x, y, z];
+                        //
+                        // cube.ScalarVal[4] = originScalarField[x, y + 1, z + 1];
+                        // cube.ScalarVal[5] = originScalarField[x + 1, y + 1, z + 1];
+                        // cube.ScalarVal[6] = originScalarField[x + 1, y + 1, z];
+                        // cube.ScalarVal[7] = originScalarField[x, y + 1, z];
 
                         cube.CalcIsoSurface();
                     }
