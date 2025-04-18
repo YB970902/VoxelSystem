@@ -365,6 +365,7 @@ namespace Bean.MC
         public Cube(Material[] sharedMaterials, Vector3 position, Func<Vector3, int> cbSubMeshIndex, float[,,] scalarField, Vector3Int index)
         {
             this.scalarField = scalarField;
+            scalarIndex = index;
             SharedMaterials = sharedMaterials;
             Position = position;
             Matrix = Matrix4x4.TRS(position, Quaternion.identity, Vector3.one);
@@ -400,16 +401,6 @@ namespace Bean.MC
         /// </summary>
         private float GetScalar(int index)
         {
-            // 꼭짓점 별 위치
-            // new Vector3(-MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize),
-            // new Vector3(MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize),
-            // new Vector3(MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize),
-            // new Vector3(-MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize),
-            // new Vector3(-MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize),
-            // new Vector3(MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize),
-            // new Vector3(MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize),
-            // new Vector3(-MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize)
-
             int x = index is 0 or 3 or 4 or 7 ? scalarIndex.x : scalarIndex.x + 1;
             int y = index is 0 or 1 or 2 or 3 ? scalarIndex.y : scalarIndex.y + 1;
             int z = index is 2 or 3 or 6 or 7 ? scalarIndex.z : scalarIndex.z + 1;
@@ -470,7 +461,7 @@ namespace Bean.MC
             if ((edgeTable[cubeIndex] & 2048) != 0)
                 vertList[11] = VertexInterp(gridPos[3], gridPos[7], GetScalar(3), GetScalar(7));
 
-            const float epsilon = 0.0001f;
+            const float epsilon = 0.00001f;
 
             int currTriangle = 0;
             
