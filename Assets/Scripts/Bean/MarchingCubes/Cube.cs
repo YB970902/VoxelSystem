@@ -12,13 +12,6 @@ namespace Bean.MC
     /// </summary>
     public class Cube
     {
-        public Mesh Mesh { get; private set; }
-        
-        /// <summary>
-        /// 메시를 가지고 있는지 여부
-        /// </summary>
-        public bool HasMesh { get; private set; }
-
         #region LookupTable
 
         // Marching Cubes 표준 edgeTable (256 요소)
@@ -320,31 +313,41 @@ namespace Bean.MC
         };
 
         #endregion
-
+        public Mesh Mesh { get; private set; }
+        
+        /// <summary>
+        /// 메시를 가지고 있는지 여부
+        /// </summary>
+        public bool HasMesh { get; private set; }
+        
         /// <summary> 꼭짓점 리스트 </summary>
         private List<Vector3> vertices;
-
         /// <summary> 인덱스 리스트 </summary>
         private List<int> triangles;
 
-        /// <summary>
-        /// 스칼라 필드. 원본은 아니고 가공해서 만든 값을 참조하여 가지고 있다.
-        /// </summary>
+        /// <summary> 스칼라 필드. cubGenerator의 스칼라 필드를 참조하고있다. </summary>
         private float[,,] scalarField;
-
-        /// <summary>
-        /// 스칼라 필드에 사용될 인덱스. x, y, z값이 가장 작은 값이 들어가있다.
-        /// </summary>
+        /// <summary> 스칼라 필드에 사용될 인덱스. x, y, z값이 가장 작은 값이 들어가있다. </summary>
         private Vector3Int scalarIndex;
 
-        /// <summary> 꼭짓점의 로컬좌표 </summary>
-        private List<Vector3> gridPos;
+        /// <summary> 꼭짓점의 로컬좌표. 값이 변하지 않으므로 static으로 사용 </summary>
+        private static Vector3[] gridPos = new Vector3[]
+        {
+            new Vector3(-MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize),
+            new Vector3(MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize),
+            new Vector3(MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize),
+            new Vector3(-MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize),
+            new Vector3(-MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize),
+            new Vector3(MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize),
+            new Vector3(MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize),
+            new Vector3(-MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize)
+        };
 
         /// <summary> 서브메시의 인덱스를 결정하는 함수 </summary>
         private Func<Vector3, int> cbSubMeshIndex;
         
-        /// <summary> 마칭큐브 연산에 필요한 버텍스 리스트 </summary>
-        List<Vector3> vertList;
+        /// <summary> 마칭큐브 연산에 필요한 버텍스 리스트. 크기가 고정되어있어 배열로 사용 </summary>
+        Vector3[] vertList;
         
         /// <summary>
         /// 큐브의 위치
@@ -375,20 +378,7 @@ namespace Bean.MC
             
             vertices = new List<Vector3>(12);
             triangles = new List<int>(12);
-
-            gridPos = new List<Vector3>()
-            {
-                new Vector3(-MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize),
-                new Vector3(MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize),
-                new Vector3(MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize),
-                new Vector3(-MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize),
-                new Vector3(-MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize),
-                new Vector3(MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize),
-                new Vector3(MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize),
-                new Vector3(-MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize)
-            };
-
-            vertList = new List<Vector3>()
+            vertList = new Vector3[12]
             {
                 Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero,
                 Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero,

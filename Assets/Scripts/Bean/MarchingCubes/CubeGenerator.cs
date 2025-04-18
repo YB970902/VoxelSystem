@@ -164,17 +164,6 @@ namespace Bean.MC
                     for (int z = 0; z < AxisZCount; ++z)
                     {
                         var cube = cubes[x, y, z];
-
-                        // cube.ScalarVal[0] = originScalarField[x, y, z + 1];
-                        // cube.ScalarVal[1] = originScalarField[x + 1, y, z + 1];
-                        // cube.ScalarVal[2] = originScalarField[x + 1, y, z];
-                        // cube.ScalarVal[3] = originScalarField[x, y, z];
-                        //
-                        // cube.ScalarVal[4] = originScalarField[x, y + 1, z + 1];
-                        // cube.ScalarVal[5] = originScalarField[x + 1, y + 1, z + 1];
-                        // cube.ScalarVal[6] = originScalarField[x + 1, y + 1, z];
-                        // cube.ScalarVal[7] = originScalarField[x, y + 1, z];
-
                         cube.CalcIsoSurface();
                     }
                 }
