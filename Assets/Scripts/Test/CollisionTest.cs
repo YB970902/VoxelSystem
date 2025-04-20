@@ -37,7 +37,6 @@ public class CollisionTest : MarchingCubesTestBase
     private void Awake()
     {
         MarchingCubes.IsoLevel = isoLevel;
-        MarchingCubes.CubeSize = cubeSize;
 
         elapsedTime = 0f;
         isClicked = false;
@@ -94,12 +93,14 @@ public class CollisionTest : MarchingCubesTestBase
 
         UpdateScalarField();
         
-        generator.UpdateMeshes();
+        generator.UpdateMeshes(true);
         isDirty = true;
     }
 
     private void FixedUpdate()
     {
+        // TODO : 레이캐스팅으로 큐브를 변화시키는건 잠시 뺀다. 추후에 제너레이터에서 수정  
+        /*
         if (isClicked && elapsedTime >= digTime)
         {
             elapsedTime -= digTime;
@@ -141,6 +142,7 @@ public class CollisionTest : MarchingCubesTestBase
         }
 
         if (isDirty == false) return;
+        */
         
         UpdateScalarField();
         

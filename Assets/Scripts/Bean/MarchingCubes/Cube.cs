@@ -311,6 +311,42 @@ namespace Bean.MC
             { 0, 3, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
             { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 }
         };
+        
+        /// <summary> LOD 레벨1의 꼭짓점의 로컬좌표. 값이 변하지 않으므로 static readonly로 사용 </summary>
+        private static readonly Vector3[] lod1GridPos = new Vector3[] {
+            new Vector3(-MarchingCubes.CubeHalfSize[1], -MarchingCubes.CubeHalfSize[1], MarchingCubes.CubeHalfSize[1]),
+            new Vector3(MarchingCubes.CubeHalfSize[1], -MarchingCubes.CubeHalfSize[1], MarchingCubes.CubeHalfSize[1]),
+            new Vector3(MarchingCubes.CubeHalfSize[1], -MarchingCubes.CubeHalfSize[1], -MarchingCubes.CubeHalfSize[1]),
+            new Vector3(-MarchingCubes.CubeHalfSize[1], -MarchingCubes.CubeHalfSize[1], -MarchingCubes.CubeHalfSize[1]),
+            new Vector3(-MarchingCubes.CubeHalfSize[1], MarchingCubes.CubeHalfSize[1], MarchingCubes.CubeHalfSize[1]),
+            new Vector3(MarchingCubes.CubeHalfSize[1], MarchingCubes.CubeHalfSize[1], MarchingCubes.CubeHalfSize[1]),
+            new Vector3(MarchingCubes.CubeHalfSize[1], MarchingCubes.CubeHalfSize[1], -MarchingCubes.CubeHalfSize[1]),
+            new Vector3(-MarchingCubes.CubeHalfSize[1], MarchingCubes.CubeHalfSize[1], -MarchingCubes.CubeHalfSize[1])
+        };
+        
+        /// <summary> LOD 레벨2의 꼭짓점의 로컬좌표. 값이 변하지 않으므로 static readonly로 사용 </summary>
+        private static readonly Vector3[] lod2GridPos = new Vector3[] {
+            new Vector3(-MarchingCubes.CubeHalfSize[2], -MarchingCubes.CubeHalfSize[2], MarchingCubes.CubeHalfSize[2]),
+            new Vector3(MarchingCubes.CubeHalfSize[2], -MarchingCubes.CubeHalfSize[2], MarchingCubes.CubeHalfSize[2]),
+            new Vector3(MarchingCubes.CubeHalfSize[2], -MarchingCubes.CubeHalfSize[2], -MarchingCubes.CubeHalfSize[2]),
+            new Vector3(-MarchingCubes.CubeHalfSize[2], -MarchingCubes.CubeHalfSize[2], -MarchingCubes.CubeHalfSize[2]),
+            new Vector3(-MarchingCubes.CubeHalfSize[2], MarchingCubes.CubeHalfSize[2], MarchingCubes.CubeHalfSize[2]),
+            new Vector3(MarchingCubes.CubeHalfSize[2], MarchingCubes.CubeHalfSize[2], MarchingCubes.CubeHalfSize[2]),
+            new Vector3(MarchingCubes.CubeHalfSize[2], MarchingCubes.CubeHalfSize[2], -MarchingCubes.CubeHalfSize[2]),
+            new Vector3(-MarchingCubes.CubeHalfSize[2], MarchingCubes.CubeHalfSize[2], -MarchingCubes.CubeHalfSize[2])
+        };
+        
+        /// <summary> LOD 레벨3의 꼭짓점의 로컬좌표. 값이 변하지 않으므로 static readonly로 사용 </summary>
+        private static readonly Vector3[] lod3GridPos = new Vector3[] {
+            new Vector3(-MarchingCubes.CubeHalfSize[3], -MarchingCubes.CubeHalfSize[3], MarchingCubes.CubeHalfSize[3]),
+            new Vector3(MarchingCubes.CubeHalfSize[3], -MarchingCubes.CubeHalfSize[3], MarchingCubes.CubeHalfSize[3]),
+            new Vector3(MarchingCubes.CubeHalfSize[3], -MarchingCubes.CubeHalfSize[3], -MarchingCubes.CubeHalfSize[3]),
+            new Vector3(-MarchingCubes.CubeHalfSize[3], -MarchingCubes.CubeHalfSize[3], -MarchingCubes.CubeHalfSize[3]),
+            new Vector3(-MarchingCubes.CubeHalfSize[3], MarchingCubes.CubeHalfSize[3], MarchingCubes.CubeHalfSize[3]),
+            new Vector3(MarchingCubes.CubeHalfSize[3], MarchingCubes.CubeHalfSize[3], MarchingCubes.CubeHalfSize[3]),
+            new Vector3(MarchingCubes.CubeHalfSize[3], MarchingCubes.CubeHalfSize[3], -MarchingCubes.CubeHalfSize[3]),
+            new Vector3(-MarchingCubes.CubeHalfSize[3], MarchingCubes.CubeHalfSize[3], -MarchingCubes.CubeHalfSize[3])
+        };
 
         #endregion
         public Mesh Mesh { get; private set; }
@@ -329,19 +365,6 @@ namespace Bean.MC
         private float[,,] scalarField;
         /// <summary> 스칼라 필드에 사용될 인덱스. x, y, z값이 가장 작은 값이 들어가있다. </summary>
         private Vector3Int scalarIndex;
-
-        /// <summary> 꼭짓점의 로컬좌표. 값이 변하지 않으므로 static으로 사용 </summary>
-        private static Vector3[] gridPos = new Vector3[]
-        {
-            new Vector3(-MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize),
-            new Vector3(MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize),
-            new Vector3(MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize),
-            new Vector3(-MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize),
-            new Vector3(-MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize),
-            new Vector3(MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize),
-            new Vector3(MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize),
-            new Vector3(-MarchingCubes.CubeHalfSize, MarchingCubes.CubeHalfSize, -MarchingCubes.CubeHalfSize)
-        };
 
         /// <summary> 서브메시의 인덱스를 결정하는 함수 </summary>
         private Func<Vector3, int> cbSubMeshIndex;
@@ -401,7 +424,7 @@ namespace Bean.MC
         /// <summary>
         /// 등치면 계산
         /// </summary>
-        public void CalcIsoSurface()
+        public void CalcIsoSurface(MarchingCubes.ChunkLODLevel lodLevel)
         {
             int cubeIndex = 0;
 
@@ -424,6 +447,23 @@ namespace Bean.MC
             {
                 Mesh.Clear();
                 return;
+            }
+
+            Vector3[] gridPos;
+            switch (lodLevel)
+            {
+                case MarchingCubes.ChunkLODLevel.Level0:
+                case MarchingCubes.ChunkLODLevel.Level1:
+                    gridPos = lod1GridPos;
+                    break;
+                case MarchingCubes.ChunkLODLevel.Level2:
+                    gridPos = lod2GridPos;
+                    break;
+                case MarchingCubes.ChunkLODLevel.Level3:
+                    gridPos = lod3GridPos;
+                    break;
+                default:
+                    return;
             }
             
             if ((edgeTable[cubeIndex] & 1) != 0)

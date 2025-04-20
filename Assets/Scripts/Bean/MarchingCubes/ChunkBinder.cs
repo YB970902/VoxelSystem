@@ -55,11 +55,11 @@ namespace Bean.MC
             resultCombineInstances = new List<CombineInstance>();
             
             resultMeshPool = new List<Mesh>();
-            for (int x = 0; x < Define.MarchingCubes.ChunkSize; ++x)
+            for (int x = 0; x < Define.MarchingCubes.ChunkSize[0]; ++x)
             {
-                for (int y = 0; y < Define.MarchingCubes.ChunkSize; ++y)
+                for (int y = 0; y < Define.MarchingCubes.ChunkSize[0]; ++y)
                 {
-                    for (int z = 0; z < Define.MarchingCubes.ChunkSize; ++z)
+                    for (int z = 0; z < Define.MarchingCubes.ChunkSize[0]; ++z)
                     {
                         resultMeshPool.Add(new Mesh());
                     }

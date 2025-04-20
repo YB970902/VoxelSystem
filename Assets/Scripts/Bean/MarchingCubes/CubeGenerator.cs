@@ -17,10 +17,6 @@ namespace Bean.MC
         /// <summary> 큐브 인스턴스의 부모 트랜스폼 </summary>
         private Transform trCubeParent;
 
-        /// TODO : 모든 큐브가 동일한 인스턴스를 가지고 있는거보단, 필요한 만큼만 가지고 있는게 나아보인다. 풀에 넣어두고 필요한 시점만 뺴서 써도 될거같다.
-        /// <summary> 큐브 인스턴스 배열 </summary>
-        private Cube[,,] cubes;
-
         /// <summary> 청크 배열 </summary>
         private Chunk[,,] chunks;
 
@@ -81,28 +77,16 @@ namespace Bean.MC
             
             chunkBinder = new ChunkBinder(sharedMaterials);
             
-            ChunkXCount = AxisXCount / Define.MarchingCubes.ChunkSize;
-            ChunkYCount = AxisYCount / Define.MarchingCubes.ChunkSize;
-            ChunkZCount = AxisZCount / Define.MarchingCubes.ChunkSize;
-            
-            chunks = new Chunk[ChunkXCount, ChunkYCount, ChunkZCount];
-            for (int x = 0, countX = ChunkXCount; x < countX; ++x)
-            {
-                for (int y = 0, countY = ChunkYCount; y < countY; ++y)
-                {
-                    for (int z = 0, countZ = ChunkZCount; z < countZ; ++z)
-                    {
-                        chunks[x,y,z] = GameObject.Instantiate(prefabChunk, trCubeParent).GetComponent<Chunk>();
-                        chunks[x,y,z].Init(sharedMaterials, chunkBinder);
-                    }
-                }
-            }
+            ChunkXCount = AxisXCount / MarchingCubes.ChunkSize[0];
+            ChunkYCount = AxisYCount / MarchingCubes.ChunkSize[0];
+            ChunkZCount = AxisZCount / MarchingCubes.ChunkSize[0];
         }
 
         public void Init(Func<Vector3, int> cbSubMeshIndex = null)
         {
             this.cbSubMeshIndex = cbSubMeshIndex;
             
+            // 스칼라 필드 세팅
             originScalarField = new float[AxisXCount + 1, AxisYCount + 1, AxisZCount + 1];
             
             for (int x = 0; x < AxisXCount; ++x)
@@ -116,19 +100,19 @@ namespace Bean.MC
                 }
             }
 
+            // 복사해서 사용한다.
             scalarField = originScalarField.Clone() as float[,,];
             
-            cubes = new Cube[AxisXCount, AxisYCount, AxisZCount];
-            
-            for (int x = 0; x < AxisXCount; ++x)
+            chunks = new Chunk[ChunkXCount, ChunkYCount, ChunkZCount];
+            for (int x = 0, countX = ChunkXCount; x < countX; ++x)
             {
-                for (int y = 0; y < AxisYCount; ++y)
+                for (int y = 0, countY = ChunkYCount; y < countY; ++y)
                 {
-                    for (int z = 0; z < AxisZCount; ++z)
+                    for (int z = 0, countZ = ChunkZCount; z < countZ; ++z)
                     {
-                        Vector3 position = new Vector3(x * MarchingCubes.CubeSize, y * MarchingCubes.CubeSize, z * MarchingCubes.CubeSize);
-                        var cube = new Cube(sharedMaterials, position, CalcSubMeshIndex, scalarField, new Vector3Int(x, y, z));
-                        cubes[x, y, z] = cube;
+                        chunks[x,y,z] = GameObject.Instantiate(prefabChunk, trCubeParent).GetComponent<Chunk>();
+                        chunks[x,y,z].Init(new Vector3Int(x, y, z), sharedMaterials, chunkBinder, CalcSubMeshIndex, scalarField);
+                        chunks[x,y,z].Refresh(true);
                     }
                 }
             }
@@ -143,11 +127,6 @@ namespace Bean.MC
             scalarField[x, y, z] = scalar;
         }
 
-        public Vector3 GetCubePosition(int x, int y, int z)
-        {
-            return cubes[x, y, z].Position;
-        }
-
         /// <summary>
         /// 스칼라 필드를 기준으로 메시를 계산한다.
         /// </summary>
@@ -157,50 +136,16 @@ namespace Bean.MC
             currUpdateTick = (currUpdateTick + 1) % UpdateTick;
             if (!immediate && currUpdateTick > 0) return;
             
-            for (int x = 0; x < AxisXCount; ++x)
-            {
-                for (int y = 0; y < AxisYCount; ++y)
-                {
-                    for (int z = 0; z < AxisZCount; ++z)
-                    {
-                        var cube = cubes[x, y, z];
-                        cube.CalcIsoSurface();
-                    }
-                }
-            }
-            
             for (int x = 0, countX = ChunkXCount; x < countX; ++x)
             {
                 for (int y = 0, countY = ChunkYCount; y < countY; ++y)
                 {
                     for (int z = 0, countZ = ChunkZCount; z < countZ; ++z)
                     {
-                        chunks[x,y,z].Combine(GetCubeList(x, y, z), CalcSubMeshIndex);
+                        chunks[x,y,z].Refresh(immediate);
                     }
                 }
             }
-        }
-
-        private List<Cube> GetCubeList(int chunkX, int chunkY, int chunkZ)
-        {
-            List<Cube> result = new List<Cube>(Define.MarchingCubes.ChunkSize * Define.MarchingCubes.ChunkSize * Define.MarchingCubes.ChunkSize);
-            
-            int cubeX = chunkX * Define.MarchingCubes.ChunkSize;
-            int cubeY = chunkY * Define.MarchingCubes.ChunkSize;
-            int cubeZ = chunkZ * Define.MarchingCubes.ChunkSize;
-            
-            for (int x = 0; x < Define.MarchingCubes.ChunkSize; ++x)
-            {
-                for (int y = 0; y < Define.MarchingCubes.ChunkSize; ++y)
-                {
-                    for (int z = 0; z < Define.MarchingCubes.ChunkSize; ++z)
-                    {
-                        result.Add(cubes[cubeX + x, cubeY + y, cubeZ + z]);
-                    }
-                }
-            }
-
-            return result;
         }
 
         /// <summary>
