@@ -23,11 +23,7 @@ namespace Bean.MC
         /// <summary> 청크를 묶어주는 처리를 하는 바인더. 하나의 인스턴스만 가지고 있다. </summary>
         private ChunkBinder chunkBinder;
 
-        /// <summary> 원본 스칼라 필드 </summary>
-        private float[,,] originScalarField;
-
-        /// <summary> 스칼라 필드에 LOD를 적용하기 위해 가공한 데이터 </summary>
-        private float[,,] scalarField;
+        private ScalarFieldGenerator scalarGenerator;
 
         /// <summary> X축 큐브 개수 </summary>
         public int AxisXCount { get; private set; }
@@ -85,23 +81,8 @@ namespace Bean.MC
         public void Init(Func<Vector3, int> cbSubMeshIndex = null)
         {
             this.cbSubMeshIndex = cbSubMeshIndex;
-            
-            // 스칼라 필드 세팅
-            originScalarField = new float[AxisXCount + 1, AxisYCount + 1, AxisZCount + 1];
-            
-            for (int x = 0; x < AxisXCount; ++x)
-            {
-                for (int y = 0; y < AxisYCount; ++y)
-                {
-                    for (int z = 0; z < AxisZCount; ++z)
-                    {
-                        originScalarField[x, y, z] = 1f;
-                    }
-                }
-            }
 
-            // 복사해서 사용한다.
-            scalarField = originScalarField.Clone() as float[,,];
+            scalarGenerator = new ScalarFieldGenerator(this);
             
             chunks = new Chunk[ChunkXCount, ChunkYCount, ChunkZCount];
             for (int x = 0, countX = ChunkXCount; x < countX; ++x)
@@ -111,11 +92,13 @@ namespace Bean.MC
                     for (int z = 0, countZ = ChunkZCount; z < countZ; ++z)
                     {
                         chunks[x,y,z] = GameObject.Instantiate(prefabChunk, trCubeParent).GetComponent<Chunk>();
-                        chunks[x,y,z].Init(new Vector3Int(x, y, z), sharedMaterials, chunkBinder, CalcSubMeshIndex, scalarField);
+                        chunks[x,y,z].Init(new Vector3Int(x, y, z), sharedMaterials, chunkBinder, CalcSubMeshIndex, scalarGenerator.ScalarField);
                         chunks[x,y,z].Refresh(true);
                     }
                 }
             }
+            
+            scalarGenerator.Init(chunks);
         }
 
         /// <summary>
@@ -123,8 +106,7 @@ namespace Bean.MC
         /// </summary>
         public void SetScalar(int x, int y, int z, float scalar)
         {
-            originScalarField[x, y, z] = scalar;
-            scalarField[x, y, z] = scalar;
+            scalarGenerator.SetScalar(x, y, z, scalar);
         }
 
         /// <summary>
