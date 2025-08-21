@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Bean.MC
 {
     /// <summary>
-    /// 여러개의 큐브를 묶어서 하나의 덩어리로 보이게 하느 클래스.
+    /// 여러개의 큐브를 묶어서 하나의 덩어리로 보이게 하는 클래스.
     /// CombineMeshes 컴포넌트로 여러개의 메시를 하나의 메시로 처리하여 드로우콜을 낮춘다.
     /// </summary>
     [RequireComponent(typeof(MeshFilter))]

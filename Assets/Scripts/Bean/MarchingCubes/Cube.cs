@@ -353,15 +353,18 @@ namespace Bean.MC
         
         /// <summary>
         /// 메시를 가지고 있는지 여부
+        /// true이면 메시에 값이 설정되어서 렌더링이 되고 있다는 의미이고, false면 렌더링이 되고 있지 않다는 의미이다.
         /// </summary>
         public bool HasMesh { get; private set; }
+        
+        #region MarchingCube 관련 변수
         
         /// <summary> 꼭짓점 리스트 </summary>
         private List<Vector3> vertices;
         /// <summary> 인덱스 리스트 </summary>
         private List<int> triangles;
 
-        /// <summary> 스칼라 필드. cubGenerator의 스칼라 필드를 참조하고있다. </summary>
+        /// <summary> 스칼라 필드. cubeGenerator의 스칼라 필드를 참조하고있다. </summary>
         private float[,,] scalarField;
         /// <summary> 스칼라 필드에 사용될 인덱스. x, y, z값이 가장 작은 값이 들어가있다. </summary>
         private Vector3Int scalarIndex;
@@ -373,17 +376,22 @@ namespace Bean.MC
         Vector3[] vertList;
         
         /// <summary>
-        /// 큐브의 위치
-        /// </summary>
-        public Vector3 Position { get; private set; }
-        
-        /// <summary>
         /// 청크에 필요한 매트리스 값. 위치가 변하지 않으므로 생성될 때 1회만 값을 세팅한다.
         /// </summary>
         public Matrix4x4 Matrix { get; private set; }
 
         /// <summary> 머터리얼 정보. 큐브마다 다른 머터리얼 정보를 가지고 있을 수 있으므로, 따로 가지고 있는다. </summary>
         public Material[] SharedMaterials { get; private set; }
+
+        /// <summary> 메시가 비어져있는지 여부 </summary>
+        private bool isClear;
+        
+        #endregion
+        
+        /// <summary>
+        /// 큐브의 위치
+        /// </summary>
+        public Vector3 Position { get; private set; }
 
         /// <summary>
         /// 큐브를 생성한다.
@@ -398,6 +406,7 @@ namespace Bean.MC
             this.cbSubMeshIndex = cbSubMeshIndex;
             
             Mesh = new Mesh();
+            isClear = true;
             
             vertices = new List<Vector3>(12);
             triangles = new List<int>(12);
@@ -427,9 +436,6 @@ namespace Bean.MC
         public void CalcIsoSurface(MarchingCubes.ChunkLODLevel lodLevel)
         {
             int cubeIndex = 0;
-
-            triangles.Clear();
-            vertices.Clear();
             
             HasMesh = false;
 
@@ -445,7 +451,11 @@ namespace Bean.MC
             // 모두 꽉 차있으면 계산할 필요가 없고, 보일 필요도 없다.
             if (edgeTable[cubeIndex] == 0)
             {
-                Mesh.Clear();
+                if (isClear == false)
+                {
+                    Mesh.Clear();
+                    isClear = true;
+                }
                 return;
             }
 
@@ -525,6 +535,11 @@ namespace Bean.MC
             Mesh.SetVertices(vertices);
             Mesh.SetTriangles(triangles, cbSubMeshIndex(Position));
             Mesh.RecalculateNormals();
+            
+            vertices.Clear();
+            triangles.Clear();
+
+            isClear = false;
         }
 
         private Vector3 VertexInterp(Vector3 vec1, Vector3 vec2, float scalar1, float scalar2)

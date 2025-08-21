@@ -99,50 +99,48 @@ public class CollisionTest : MarchingCubesTestBase
 
     private void FixedUpdate()
     {
-        // TODO : 레이캐스팅으로 큐브를 변화시키는건 잠시 뺀다. 추후에 제너레이터에서 수정  
-        /*
-        if (isClicked && elapsedTime >= digTime)
-        {
-            elapsedTime -= digTime;
-            if (Physics.Raycast(ray, out RaycastHit hitInfo))
-            {
-                isDirty = true;
-                
-                int gridCount = (int)(sphereRadius / cubeSize) + 1;
-                int currX = (int)(hitInfo.point.x / cubeSize);
-                int currY = (int)(hitInfo.point.y / cubeSize);
-                int currZ = (int)(hitInfo.point.z / cubeSize);
-                int minX = Mathf.Max(currX - gridCount, 0);
-                int maxX = Mathf.Min(currX + gridCount, axisXCount - 1);
-                int minY = Mathf.Max(currY - gridCount, 0);
-                int maxY = Mathf.Min(currY + gridCount, axisYCount - 1);
-                int minZ = Mathf.Max(currZ - gridCount, 0);
-                int maxZ = Mathf.Min(currZ + gridCount, axisZCount - 1);
-
-                Vector3 point = hitInfo.point;
-
-                for (int x = minX; x <= maxX; ++x)
-                {
-                    for (int y = minY; y <= maxY; ++y)
-                    {
-                        for (int z = minZ; z <= maxZ; ++z)
-                        {
-                            Vector3 cubePos = generator.GetCubePosition(x, y, z);
-                            float dist = (point - cubePos).magnitude;
-                            if (dist > sphereRadius) continue;
-                            
-                            float scalar = scalarField[x, y, z];
-                            scalar -= isDig ? digPower : -digPower;
-
-                            scalarField[x, y, z] = scalar;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (isDirty == false) return;
-        */
+         // TODO : 레이캐스팅으로 큐브를 변화시키는건 잠시 뺀다. 추후에 제너레이터에서 수정
+         // if (isClicked && elapsedTime >= digTime)
+         // {
+         //     elapsedTime -= digTime;
+         //     if (Physics.Raycast(ray, out RaycastHit hitInfo))
+         //     {
+         //         isDirty = true;
+         //         
+         //         int gridCount = (int)(sphereRadius / cubeSize) + 1;
+         //         int currX = (int)(hitInfo.point.x / cubeSize);
+         //         int currY = (int)(hitInfo.point.y / cubeSize);
+         //         int currZ = (int)(hitInfo.point.z / cubeSize);
+         //         int minX = Mathf.Max(currX - gridCount, 0);
+         //         int maxX = Mathf.Min(currX + gridCount, axisXCount - 1);
+         //         int minY = Mathf.Max(currY - gridCount, 0);
+         //         int maxY = Mathf.Min(currY + gridCount, axisYCount - 1);
+         //         int minZ = Mathf.Max(currZ - gridCount, 0);
+         //         int maxZ = Mathf.Min(currZ + gridCount, axisZCount - 1);
+         //
+         //         Vector3 point = hitInfo.point;
+         //
+         //         for (int x = minX; x <= maxX; ++x)
+         //         {
+         //             for (int y = minY; y <= maxY; ++y)
+         //             {
+         //                 for (int z = minZ; z <= maxZ; ++z)
+         //                 {
+         //                     Vector3 cubePos = generator.GetCubePosition(x, y, z);
+         //                     float dist = (point - cubePos).magnitude;
+         //                     if (dist > sphereRadius) continue;
+         //                     
+         //                     float scalar = scalarField[x, y, z];
+         //                     scalar -= isDig ? digPower : -digPower;
+         //
+         //                     scalarField[x, y, z] = scalar;
+         //                 }
+         //             }
+         //         }
+         //     }
+         // }
+         //
+         // if (isDirty == false) return;
         
         UpdateScalarField();
         

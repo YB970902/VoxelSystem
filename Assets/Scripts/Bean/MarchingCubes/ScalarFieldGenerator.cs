@@ -63,9 +63,51 @@ namespace Bean.MC
             ScalarField[x, y, z] = scalar;
         }
 
+        /// <summary>
+        /// 해당 위치의 청크 LODLevel을 설정한다.
+        /// LOD 레벨이 높아지면, 원본 스칼라 값에서 낮은 해상도의 값을 가져오고, 그 사이는 보간으로 채운다.
+        /// </summary>
         public void SetChunkLODLevel(int chunkX, int chunkY, int chunkZ, MarchingCubes.ChunkLODLevel level)
         {
-            Chunk chunk = cubeGenerator.
+            Chunk chunk = chunks[chunkX, chunkY, chunkZ];
+            if (chunk.LODLevel == level) return;
+            chunk.Refresh();
+
+            // 청크 해상도. 값이 클수록 해상도가 낮다.
+            int chunkResolution = MarchingCubes.ChunkSize[(int)level] / MarchingCubes.ChunkSize[0];
+            
+            // 해상도만큼 루프를 돈다.
+            for (int x = chunkX, countX = chunkX + MarchingCubes.ChunkSize[0]; x < countX; x += chunkResolution)
+            {
+                for (int y = chunkY, countY = chunkY + MarchingCubes.ChunkSize[0]; y < countY; y += chunkResolution)
+                {
+                    for (int z = chunkZ, countZ = chunkZ + MarchingCubes.ChunkSize[0]; z < countZ; z += chunkResolution)
+                    {
+                        // 원본 스칼라 필드의 값을 해상도 값 만큼 간격을 두고 스칼라 필드 값에 넣어준다. 
+                        ScalarField[x, y, z] = originScalarField[x, y, z];
+
+                        if (x - chunkResolution < chunkX) continue;
+                        if (y - chunkResolution < chunkY) continue;
+                        if (z - chunkResolution < chunkZ) continue;
+                        
+                        // 해상도 사이사이 값을 보간하며 채워준다.
+                    }
+                }
+            }
+        }
+
+        private void LerpScalarField(int x, int y, int z, int resolution)
+        {
+            for (int countX = x + resolution; x < countX; ++x)
+            {
+                for (int countY = y + resolution; y < countY; ++y)
+                {
+                    for (int countZ = z + resolution; z < countZ; ++z)
+                    {
+                        
+                    }
+                }
+            }
         }
     }
 }
